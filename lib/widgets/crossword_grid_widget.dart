@@ -6,7 +6,7 @@ import '../services/game_state_provider.dart';
 import '../theme/editorial_theme.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-class CrosswordGridWidget extends StatelessWidget {
+class CrosswordGridWidget extends StatefulWidget {
   final CrosswordBoard board;
 
   const CrosswordGridWidget({
@@ -15,167 +15,263 @@ class CrosswordGridWidget extends StatelessWidget {
   });
 
   @override
+  State<CrosswordGridWidget> createState() => _CrosswordGridWidgetState();
+}
+
+class _CrosswordGridWidgetState extends State<CrosswordGridWidget> {
+  final TransformationController _transformationController = TransformationController();
+  bool _isZoomed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _transformationController.addListener(_handleZoomChange);
+  }
+
+  @override
+  void dispose() {
+    _transformationController.removeListener(_handleZoomChange);
+    _transformationController.dispose();
+    super.dispose();
+  }
+
+  void _handleZoomChange() {
+    final scale = _transformationController.value.getMaxScaleOnAxis();
+    final isZoomedNow = (scale - 1.0).abs() > 0.08;
+    if (isZoomedNow != _isZoomed) {
+      setState(() {
+        _isZoomed = isZoomedNow;
+      });
+    }
+  }
+
+  void _resetZoom() {
+    setState(() {
+      _transformationController.value = Matrix4.identity();
+      _isZoomed = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final gameState = Provider.of<GameStateProvider>(context);
     final focusedWord = gameState.currentFocusedWord;
     final activeFontId = gameState.activeFontId;
 
-    return AspectRatio(
-      aspectRatio: board.cols / board.rows,
-      child: RepaintBoundary(
-        child: Container(
-          padding: const EdgeInsets.all(2.0),
-          decoration: BoxDecoration(
-            color: EditorialTheme.surface,
-            borderRadius: BorderRadius.circular(4.0),
-            border: Border.all(color: EditorialTheme.primary, width: 2.0),
-            boxShadow: [
-              BoxShadow(
-                color: EditorialTheme.textPrimary.withValues(alpha: 0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 3),
+    return Stack(
+      alignment: Alignment.topRight,
+      children: [
+        // Interactive Zoomable Container
+        InteractiveViewer(
+          transformationController: _transformationController,
+          minScale: 0.9,
+          maxScale: 3.5,
+          clipBehavior: Clip.hardEdge,
+          child: AspectRatio(
+            aspectRatio: widget.board.cols / widget.board.rows,
+            child: Container(
+              padding: const EdgeInsets.all(3.0),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF4F1EA), // Vintage newspaper paper
+                borderRadius: BorderRadius.circular(6.0),
+                border: Border.all(color: EditorialTheme.inkDark, width: 2.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: EditorialTheme.inkDark.withValues(alpha: 0.15),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: GridView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: board.cols,
-              childAspectRatio: 1.0,
-              crossAxisSpacing: 1.2,
-              mainAxisSpacing: 1.2,
-            ),
-            itemCount: board.rows * board.cols,
-            itemBuilder: (context, index) {
-              final r = index ~/ board.cols;
-              final c = index % board.cols;
-              final cell = board.grid[r][c];
-
-              if (cell.isBlack) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: EditorialTheme.inkDark,
-                    borderRadius: BorderRadius.circular(2.0),
-                  ),
-                );
-              }
-
-              final isFocused = (gameState.focusedRow == r && gameState.focusedCol == c);
-              final isInFocusedWord = focusedWord != null && focusedWord.containsCell(r, c);
-
-              Color bgColor = EditorialTheme.surface;
-              if (isFocused) {
-                bgColor = EditorialTheme.cellFocused;
-              } else if (isInFocusedWord) {
-                bgColor = EditorialTheme.wordFocused;
-              } else if (cell.isError) {
-                bgColor = const Color(0xFFF9E5E2);
-              }
-
-              Color textColor = EditorialTheme.textPrimary;
-              if (cell.isError) {
-                textColor = EditorialTheme.error;
-              } else if (cell.isRevealed) {
-                textColor = EditorialTheme.primary;
-              }
-
-              Widget cellContent = AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: BorderRadius.circular(3.0),
-                  border: Border.all(
-                    color: isFocused
-                        ? EditorialTheme.accent
-                        : (isInFocusedWord
-                            ? EditorialTheme.primary.withValues(alpha: 0.6)
-                            : EditorialTheme.borderLine),
-                    width: isFocused ? 2.2 : 1.0,
-                  ),
+              child: GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: widget.board.cols,
+                  childAspectRatio: 1.0,
+                  crossAxisSpacing: 1.5,
+                  mainAxisSpacing: 1.5,
                 ),
-                child: Stack(
-                  children: [
-                    // Ultra-crisp Top-left Clue Number
-                    if (cell.number != null)
-                      Positioned(
-                        top: 1.5,
-                        left: 2.5,
-                        child: Text(
-                          "${cell.number}",
-                          style: GoogleFonts.inter(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.3,
-                            color: isFocused
-                                ? EditorialTheme.primary
-                                : EditorialTheme.textPrimary.withValues(alpha: 0.8),
-                          ),
-                        ),
-                      ),
+                itemCount: widget.board.rows * widget.board.cols,
+                itemBuilder: (context, index) {
+                  final r = index ~/ widget.board.cols;
+                  final c = index % widget.board.cols;
+                  final cell = widget.board.grid[r][c];
 
-                    // Direction Indicator in active cell
-                    if (isFocused)
-                      Positioned(
-                        top: 2,
-                        right: 2.5,
-                        child: Icon(
-                          gameState.isAcrossFocus ? Icons.arrow_forward : Icons.arrow_downward,
-                          size: 9,
-                          color: EditorialTheme.primary,
-                        ),
+                  // Black / Blocked Newspaper Cell
+                  if (cell.isBlack) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1F2327), // Deep Sepia Ink
+                        borderRadius: BorderRadius.circular(2.0),
+                        border: Border.all(color: const Color(0xFF14171A), width: 0.5),
                       ),
+                    );
+                  }
 
-                    // Center User Letter with Spring Scale Animation
-                    Center(
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          top: cell.number != null ? 5.0 : 0.0,
-                          left: 1.0,
-                          right: 1.0,
-                          bottom: 1.0,
-                        ),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            cell.userChar,
-                            key: ValueKey("cell_${r}_${c}_${cell.userChar}"),
-                            style: EditorialTheme.getEditorialFont(
-                              fontId: activeFontId,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
-                              color: textColor,
-                            ),
-                          ).animate(
-                            key: ValueKey("anim_${r}_${c}_${cell.userChar}"),
-                          ).scale(
-                            duration: 160.ms,
-                            curve: Curves.easeOutBack,
-                          ),
-                        ),
+                  final isFocused = (gameState.focusedRow == r && gameState.focusedCol == c);
+                  final isInFocusedWord = focusedWord != null && focusedWord.containsCell(r, c);
+
+                  // Colors palette for cells
+                  Color bgColor = Colors.white;
+                  if (isFocused) {
+                    bgColor = const Color(0xFFFDF3D6); // Amber Warm Tint
+                  } else if (isInFocusedWord) {
+                    bgColor = const Color(0xFFEBF3F5); // Petrol Tint
+                  } else if (cell.isError) {
+                    bgColor = const Color(0xFFFDE8E8);
+                  }
+
+                  Color textColor = EditorialTheme.textPrimary;
+                  if (cell.isError) {
+                    textColor = EditorialTheme.error;
+                  } else if (cell.isRevealed) {
+                    textColor = EditorialTheme.primary;
+                  }
+
+                  Widget cellContent = AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    decoration: BoxDecoration(
+                      color: bgColor,
+                      borderRadius: BorderRadius.circular(2.5),
+                      border: Border.all(
+                        color: isFocused
+                            ? EditorialTheme.accent
+                            : (isInFocusedWord
+                                ? EditorialTheme.primary.withValues(alpha: 0.7)
+                                : const Color(0xFFC0BBAF)),
+                        width: isFocused ? 2.5 : 1.0,
                       ),
                     ),
-                  ],
-                ),
-              );
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final h = constraints.maxHeight;
+                        // Proportional font sizing guaranteed not to overlap
+                        final numFontSize = (h * 0.28).clamp(7.5, 12.0);
+                        final letterFontSize = (h * 0.52).clamp(11.0, 24.0);
+                        final topPadding = cell.number != null ? (h * 0.28) : 0.0;
 
-              // Shimmer flare for revealed letters
-              if (cell.isRevealed) {
-                cellContent = cellContent.animate().shimmer(
-                  duration: 800.ms,
-                  color: EditorialTheme.accent.withValues(alpha: 0.6),
-                );
-              }
+                        return Stack(
+                          children: [
+                            // 1. Top-Left Clue Number (Strictly bounded in top 30% of cell)
+                            if (cell.number != null)
+                              Positioned(
+                                top: 2.0,
+                                left: 3.0,
+                                child: Text(
+                                  "${cell.number}",
+                                  style: GoogleFonts.inter(
+                                    fontSize: numFontSize,
+                                    fontWeight: FontWeight.w800,
+                                    height: 1.0,
+                                    color: isFocused
+                                        ? EditorialTheme.primary
+                                        : EditorialTheme.textPrimary.withValues(alpha: 0.85),
+                                  ),
+                                ),
+                              ),
 
-              return RepaintBoundary(
-                child: GestureDetector(
-                  onTap: () => gameState.selectCell(r, c),
-                  child: cellContent,
-                ),
-              );
-            },
+                            // 2. Direction Indicator Arrow (Top-Right of focused cell)
+                            if (isFocused)
+                              Positioned(
+                                top: 2.0,
+                                right: 3.0,
+                                child: Icon(
+                                  gameState.isAcrossFocus ? Icons.arrow_forward : Icons.arrow_downward,
+                                  size: numFontSize * 0.95,
+                                  color: EditorialTheme.primary,
+                                ),
+                              ),
+
+                            // 3. User Input Letter (Bounded in lower region with top padding)
+                            Positioned.fill(
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                  top: topPadding,
+                                  bottom: 1.0,
+                                  left: 1.0,
+                                  right: 1.0,
+                                ),
+                                child: Center(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      cell.userChar,
+                                      key: ValueKey("cell_${r}_${c}_${cell.userChar}"),
+                                      style: EditorialTheme.getEditorialFont(
+                                        fontId: activeFontId,
+                                        fontSize: letterFontSize,
+                                        fontWeight: FontWeight.w700,
+                                        color: textColor,
+                                      ),
+                                    ).animate(
+                                      key: ValueKey("anim_${r}_${c}_${cell.userChar}"),
+                                    ).scale(
+                                      duration: 150.ms,
+                                      curve: Curves.easeOutBack,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  );
+
+                  // Shimmer flare for revealed letters
+                  if (cell.isRevealed) {
+                    cellContent = cellContent.animate().shimmer(
+                      duration: 800.ms,
+                      color: EditorialTheme.accent.withValues(alpha: 0.6),
+                    );
+                  }
+
+                  return RepaintBoundary(
+                    child: GestureDetector(
+                      onTap: () => gameState.selectCell(r, c),
+                      child: cellContent,
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
         ),
-      ),
+
+        // Floating Reset Zoom Button (appears when zoomed in)
+        if (_isZoomed)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Material(
+              color: EditorialTheme.primary,
+              borderRadius: BorderRadius.circular(20),
+              elevation: 4,
+              child: InkWell(
+                onTap: _resetZoom,
+                borderRadius: BorderRadius.circular(20),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.zoom_out_map, size: 14, color: Colors.white),
+                      SizedBox(width: 4),
+                      Text(
+                        "Centrar",
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

@@ -50,7 +50,7 @@ class CrosswordGenerator {
 
     // Run multiple procedural attempts to get the highest density, best connected layout
     final random = Random();
-    for (int attempt = 0; attempt < 25; attempt++) {
+    for (int attempt = 0; attempt < 35; attempt++) {
       candidates.shuffle(random);
       final board = _buildSingleBoardAttempt(
         title: title,
@@ -61,9 +61,9 @@ class CrosswordGenerator {
       );
 
       if (board != null) {
-        int score = board.placedWords.length * 10;
-        // Reward compact aspect ratio
-        score -= (board.rows - board.cols).abs() * 2;
+        // High reward for placed word count, high penalty for sparse/large grid area
+        int area = board.rows * board.cols;
+        int score = (board.placedWords.length * 35) - (area * 2) - ((board.rows - board.cols).abs() * 4);
         if (score > maxScore) {
           maxScore = score;
           bestBoard = board;
@@ -180,12 +180,7 @@ class CrosswordGenerator {
       }
     }
 
-    // Add 1 cell border around the bounding box
-    minR = max(0, minR - 1);
-    maxR = min(maxSize - 1, maxR + 1);
-    minC = max(0, minC - 1);
-    maxC = min(maxSize - 1, maxC + 1);
-
+    // Crop strictly around the active word bounding box
     int rows = maxR - minR + 1;
     int cols = maxC - minC + 1;
 
