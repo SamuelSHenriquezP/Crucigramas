@@ -76,13 +76,13 @@ class ClueDockWidget extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   focusedWord != null ? focusedWord.clue : "Selecciona una casilla para ver la pista",
-                  maxLines: 2,
+                  maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.inter(
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: EditorialTheme.textPrimary,
-                    height: 1.2,
+                    height: 1.25,
                   ),
                 ),
               ],

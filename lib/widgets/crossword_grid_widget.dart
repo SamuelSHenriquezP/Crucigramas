@@ -126,20 +126,26 @@ class CrosswordGridWidget extends StatelessWidget {
 
                     // Center User Letter with Spring Animation
                     Center(
-                      child: Text(
-                        cell.userChar,
-                        key: ValueKey("cell_${r}_${c}_${cell.userChar}"),
-                        style: EditorialTheme.getEditorialFont(
-                          fontId: activeFontId,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: textColor,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: cell.number != null ? 6.0 : 0.0, left: 2.0, right: 2.0, bottom: 2.0),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            cell.userChar,
+                            key: ValueKey("cell_${r}_${c}_${cell.userChar}"),
+                            style: EditorialTheme.getEditorialFont(
+                              fontId: activeFontId,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: textColor,
+                            ),
+                          ).animate(
+                            key: ValueKey("anim_${r}_${c}_${cell.userChar}"),
+                          ).scale(
+                            duration: 180.ms,
+                            curve: Curves.easeOutBack,
+                          ),
                         ),
-                      ).animate(
-                        key: ValueKey("anim_${r}_${c}_${cell.userChar}"),
-                      ).scale(
-                        duration: 180.ms,
-                        curve: Curves.easeOutBack,
                       ),
                     ),
                   ],

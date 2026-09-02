@@ -5,7 +5,6 @@ import '../../models/crossword_board.dart';
 import '../../services/ad_manager.dart';
 import '../../services/game_state_provider.dart';
 import '../../theme/editorial_theme.dart';
-import '../../widgets/newspaper_header.dart';
 import '../../widgets/crossword_grid_widget.dart';
 import '../../widgets/clue_dock_widget.dart';
 import '../../widgets/editorial_keyboard.dart';
@@ -173,22 +172,15 @@ class _CrosswordGameScreenState extends State<CrosswordGameScreen> {
               : SafeArea(
                   child: Column(
                     children: [
-                      const NewspaperHeader(
-                        editionTitle: "EDICIÓN EN JUEGO",
-                        subtitle: "Resuelve las intersecciones",
-                        showLogo: false,
-                      ),
-                      const SizedBox(height: 6),
-
                       // Level Progress Indicator Bar
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4.0),
                         child: Row(
                           children: [
                             Text(
-                              "PROGRESO DE LA EDICIÓN",
+                              "PROGRESO EN LA EDICIÓN",
                               style: GoogleFonts.inter(
-                                fontSize: 9,
+                                fontSize: 10,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1.0,
                                 color: EditorialTheme.primary,
@@ -198,7 +190,7 @@ class _CrosswordGameScreenState extends State<CrosswordGameScreen> {
                             Text(
                               "${_getSolvedWordsCount(gameState.currentBoard!)} / ${gameState.currentBoard!.placedWords.length} Palabras",
                               style: GoogleFonts.playfairDisplay(
-                                fontSize: 11,
+                                fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 color: EditorialTheme.accent,
                               ),
