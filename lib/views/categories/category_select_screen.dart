@@ -23,7 +23,7 @@ class CategorySelectScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          "DOSSIERS TEMÁTICOS",
+          "TEMÁTICAS",
           style: GoogleFonts.playfairDisplay(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -229,7 +229,7 @@ class CategorySelectScreen extends StatelessWidget {
     return InkWell(
       onTap: () {
         gameState.startNewLevel(
-          title: "Dossier $categoryName",
+          title: "Temática: $categoryName",
           category: categoryName,
         );
         Navigator.pushReplacement(
@@ -280,7 +280,7 @@ class CategorySelectScreen extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  "Dossier Especializado",
+                  "Temática Especial",
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     color: EditorialTheme.textSecondary,

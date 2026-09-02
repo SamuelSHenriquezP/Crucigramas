@@ -103,10 +103,10 @@ class ShopScreen extends StatelessWidget {
       iconName: 'font_download',
     ),
 
-    // Dossiers
+    // Temáticas
     ShopItem(
       id: 'dossier_mitologia',
-      title: 'Dossier Mitología Clásica',
+      title: 'Temática Mitología Clásica',
       description: 'Acceso a palabras exclusivas sobre dioses, héroes y leyendas.',
       price: 300,
       type: ShopItemType.dossier,
@@ -114,7 +114,7 @@ class ShopScreen extends StatelessWidget {
     ),
     ShopItem(
       id: 'dossier_filosofia',
-      title: 'Dossier Filosofía & Mente',
+      title: 'Temática Filosofía & Mente',
       description: 'Crucigramas de gran calibre intelectual sobre el pensamiento humano.',
       price: 350,
       type: ShopItemType.dossier,
@@ -122,7 +122,7 @@ class ShopScreen extends StatelessWidget {
     ),
     ShopItem(
       id: 'dossier_ciencia_cuantica',
-      title: 'Dossier Ciencia & Física Cuántica',
+      title: 'Temática Ciencia & Física Cuántica',
       description: 'Términos científicos avanzados de física, química y universo.',
       price: 400,
       type: ShopItemType.dossier,
@@ -130,7 +130,7 @@ class ShopScreen extends StatelessWidget {
     ),
     ShopItem(
       id: 'dossier_gastronomia_mundo',
-      title: 'Dossier Gastronomía del Mundo',
+      title: 'Temática Gastronomía del Mundo',
       description: 'Sabores, técnicas culinarias e ingredientes de alta cocina.',
       price: 300,
       type: ShopItemType.dossier,
@@ -138,7 +138,7 @@ class ShopScreen extends StatelessWidget {
     ),
     ShopItem(
       id: 'dossier_cine_opera',
-      title: 'Dossier Cine de Culto & Ópera',
+      title: 'Temática Cine de Culto & Ópera',
       description: 'Séptimo arte, escenografía y grandes piezas musicales.',
       price: 350,
       type: ShopItemType.dossier,
@@ -379,8 +379,8 @@ class ShopScreen extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // Section: Dossiers
-              _buildSectionHeader("DOSSIERS DE EDICIÓN ESPECIAL", "Niveles exclusivos con vocabulario avanzado"),
+              // Section: Temáticas
+              _buildSectionHeader("TEMÁTICAS DE EDICIÓN ESPECIAL", "Niveles exclusivos con vocabulario avanzado"),
               const SizedBox(height: 12),
               ..._shopItems.where((i) => i.type == ShopItemType.dossier).map((item) {
                 return _buildShopItemCard(context, gameState, item);

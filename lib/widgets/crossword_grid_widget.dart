@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/crossword_board.dart';
 import '../services/game_state_provider.dart';
 import '../theme/editorial_theme.dart';
-
 import 'package:flutter_animate/flutter_animate.dart';
 
 class CrosswordGridWidget extends StatelessWidget {
@@ -24,14 +24,15 @@ class CrosswordGridWidget extends StatelessWidget {
       aspectRatio: board.cols / board.rows,
       child: RepaintBoundary(
         child: Container(
-          padding: const EdgeInsets.all(4.0),
+          padding: const EdgeInsets.all(2.0),
           decoration: BoxDecoration(
             color: EditorialTheme.surface,
-            border: Border.all(color: EditorialTheme.textPrimary, width: 2.0),
+            borderRadius: BorderRadius.circular(4.0),
+            border: Border.all(color: EditorialTheme.primary, width: 2.0),
             boxShadow: [
               BoxShadow(
-                color: EditorialTheme.textPrimary.withValues(alpha: 0.08),
-                blurRadius: 6,
+                color: EditorialTheme.textPrimary.withValues(alpha: 0.1),
+                blurRadius: 8,
                 offset: const Offset(0, 3),
               ),
             ],
@@ -41,8 +42,8 @@ class CrosswordGridWidget extends StatelessWidget {
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: board.cols,
               childAspectRatio: 1.0,
-              crossAxisSpacing: 1.5,
-              mainAxisSpacing: 1.5,
+              crossAxisSpacing: 1.2,
+              mainAxisSpacing: 1.2,
             ),
             itemCount: board.rows * board.cols,
             itemBuilder: (context, index) {
@@ -87,27 +88,27 @@ class CrosswordGridWidget extends StatelessWidget {
                     color: isFocused
                         ? EditorialTheme.accent
                         : (isInFocusedWord
-                            ? EditorialTheme.primary.withValues(alpha: 0.5)
+                            ? EditorialTheme.primary.withValues(alpha: 0.6)
                             : EditorialTheme.borderLine),
-                    width: isFocused ? 2.0 : 1.0,
+                    width: isFocused ? 2.2 : 1.0,
                   ),
                 ),
                 child: Stack(
                   children: [
-                    // Top-left Clue Number
+                    // Ultra-crisp Top-left Clue Number
                     if (cell.number != null)
                       Positioned(
-                        top: 2,
-                        left: 3,
+                        top: 1.5,
+                        left: 2.5,
                         child: Text(
                           "${cell.number}",
-                          style: EditorialTheme.getEditorialFont(
-                            fontId: activeFontId,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                          style: GoogleFonts.inter(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.3,
                             color: isFocused
                                 ? EditorialTheme.primary
-                                : EditorialTheme.textPrimary.withValues(alpha: 0.75),
+                                : EditorialTheme.textPrimary.withValues(alpha: 0.8),
                           ),
                         ),
                       ),
@@ -116,7 +117,7 @@ class CrosswordGridWidget extends StatelessWidget {
                     if (isFocused)
                       Positioned(
                         top: 2,
-                        right: 3,
+                        right: 2.5,
                         child: Icon(
                           gameState.isAcrossFocus ? Icons.arrow_forward : Icons.arrow_downward,
                           size: 9,
@@ -124,10 +125,15 @@ class CrosswordGridWidget extends StatelessWidget {
                         ),
                       ),
 
-                    // Center User Letter with Spring Animation
+                    // Center User Letter with Spring Scale Animation
                     Center(
                       child: Padding(
-                        padding: EdgeInsets.only(top: cell.number != null ? 6.0 : 0.0, left: 2.0, right: 2.0, bottom: 2.0),
+                        padding: EdgeInsets.only(
+                          top: cell.number != null ? 5.0 : 0.0,
+                          left: 1.0,
+                          right: 1.0,
+                          bottom: 1.0,
+                        ),
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
@@ -135,14 +141,14 @@ class CrosswordGridWidget extends StatelessWidget {
                             key: ValueKey("cell_${r}_${c}_${cell.userChar}"),
                             style: EditorialTheme.getEditorialFont(
                               fontId: activeFontId,
-                              fontSize: 18,
+                              fontSize: 20,
                               fontWeight: FontWeight.w700,
                               color: textColor,
                             ),
                           ).animate(
                             key: ValueKey("anim_${r}_${c}_${cell.userChar}"),
                           ).scale(
-                            duration: 180.ms,
+                            duration: 160.ms,
                             curve: Curves.easeOutBack,
                           ),
                         ),

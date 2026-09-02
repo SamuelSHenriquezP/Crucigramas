@@ -15,6 +15,7 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
+  @override
   Widget build(BuildContext context) {
     final gameState = Provider.of<GameStateProvider>(context);
     final repo = DictionaryRepository();
@@ -22,26 +23,33 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: EditorialTheme.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 1. Newspaper Masthead
-              const NewspaperHeader(
-                editionTitle: "EDICIÓN PRINCIPAL",
-                subtitle: "Revista Editorial de Intelecto",
-              ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // 1. Newspaper Masthead
+                        const NewspaperHeader(
+                          editionTitle: "EDICIÓN PRINCIPAL",
+                          subtitle: "Revista Editorial de Intelecto",
+                        ),
 
-              const SizedBox(height: 14),
+                        const SizedBox(height: 14),
 
-              // 2. Player Stats Bar (Coins, Solved Words, Streak)
+              // 2. Centered Player Stats Bar (Coins, Solved Words, Streak)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: EditorialTheme.newspaperCardDecoration,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildStatItem(
                       icon: Icons.monetization_on,
@@ -62,14 +70,14 @@ class HomeScreen extends StatelessWidget {
                       color: EditorialTheme.error,
                       label: "Racha",
                       value: "${gameState.streak} d.",
-                    ),
+                     ),
                   ],
                 ),
               ).animate().fadeIn(duration: 350.ms),
 
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
 
-              // 3. Featured Hero Card: Active Draft OR Daily Challenge
+              // 3. Featured Hero Card: Active Draft OR Daily Challenge (Centered layout)
               gameState.hasSavedDraft
                   ? InkWell(
                       onTap: () async {
@@ -83,23 +91,23 @@ class HomeScreen extends StatelessWidget {
                       },
                       borderRadius: BorderRadius.circular(10),
                       child: Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
                           color: EditorialTheme.accent.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: EditorialTheme.accent, width: 1.8),
                         ),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.edit_note, color: EditorialTheme.accent, size: 24),
+                                const Icon(Icons.edit_note, color: EditorialTheme.accent, size: 22),
                                 const SizedBox(width: 6),
                                 Text(
                                   "BORRADOR GUARDADO",
                                   style: GoogleFonts.inter(
-                                    fontSize: 10,
+                                    fontSize: 11,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 1.1,
                                     color: EditorialTheme.accent,
@@ -107,26 +115,28 @@ class HomeScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 8),
                             Text(
                               gameState.draftTitle,
+                              textAlign: TextAlign.center,
                               style: EditorialTheme.getEditorialFont(
                                 fontId: gameState.activeFontId,
-                                fontSize: 18,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              "Continúa resolviendo tu partida en borrador.",
+                              "Continúa resolviendo tu partida en borrador",
+                              textAlign: TextAlign.center,
                               style: GoogleFonts.inter(
                                 fontSize: 12,
                                 color: EditorialTheme.textSecondary,
                               ),
                             ),
-                            const SizedBox(height: 10),
-                            Align(
-                              alignment: Alignment.centerRight,
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              width: double.infinity,
                               child: ElevatedButton.icon(
                                 onPressed: () async {
                                   await gameState.resumeSavedDraft();
@@ -139,15 +149,17 @@ class HomeScreen extends StatelessWidget {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: EditorialTheme.primary,
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                 ),
-                                icon: const Icon(Icons.play_arrow, color: EditorialTheme.surface, size: 18),
+                                icon: const Icon(Icons.play_arrow, color: EditorialTheme.surface, size: 20),
                                 label: Text(
-                                  "Continuar",
+                                  "CONTINUAR PARTIDA",
                                   style: GoogleFonts.inter(
-                                    fontSize: 12,
+                                    fontSize: 13,
                                     fontWeight: FontWeight.bold,
                                     color: EditorialTheme.surface,
+                                    letterSpacing: 0.5,
                                   ),
                                 ),
                               ),
@@ -166,7 +178,7 @@ class HomeScreen extends StatelessWidget {
                       },
                       borderRadius: BorderRadius.circular(10),
                       child: Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
                           color: gameState.isDailyCompletedToday
                               ? const Color(0xFFEFF5F1)
@@ -178,14 +190,21 @@ class HomeScreen extends StatelessWidget {
                                 : EditorialTheme.primary,
                             width: 1.8,
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: EditorialTheme.primary.withValues(alpha: 0.06),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
                         ),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
                                     color: gameState.isDailyCompletedToday
                                         ? EditorialTheme.success
@@ -197,15 +216,16 @@ class HomeScreen extends StatelessWidget {
                                         ? "COMPLETADO HOY"
                                         : "DESAFÍO DEL DÍA",
                                     style: GoogleFonts.inter(
-                                      fontSize: 10,
+                                      fontSize: 10.5,
                                       fontWeight: FontWeight.bold,
                                       color: gameState.isDailyCompletedToday
                                           ? EditorialTheme.surface
                                           : EditorialTheme.textPrimary,
+                                      letterSpacing: 1.0,
                                     ),
                                   ),
                                 ),
-                                const Spacer(),
+                                const SizedBox(width: 8),
                                 Text(
                                   "+200 🪙",
                                   style: GoogleFonts.inter(
@@ -219,9 +239,10 @@ class HomeScreen extends StatelessWidget {
                             const SizedBox(height: 8),
                             Text(
                               "Crucigrama del Día",
+                              textAlign: TextAlign.center,
                               style: EditorialTheme.getEditorialFont(
                                 fontId: gameState.activeFontId,
-                                fontSize: 20,
+                                fontSize: 22,
                                 fontWeight: FontWeight.bold,
                                 color: EditorialTheme.textPrimary,
                               ),
@@ -231,14 +252,15 @@ class HomeScreen extends StatelessWidget {
                               gameState.isDailyCompletedToday
                                   ? "Has completado la edición de hoy. ¡Vuelve mañana!"
                                   : "Edición especial diaria con palabras e intersecciones únicas.",
+                              textAlign: TextAlign.center,
                               style: GoogleFonts.inter(
                                 fontSize: 12,
                                 color: EditorialTheme.textSecondary,
                               ),
                             ),
-                            const SizedBox(height: 10),
-                            Align(
-                              alignment: Alignment.centerRight,
+                            const SizedBox(height: 14),
+                            SizedBox(
+                              width: double.infinity,
                               child: ElevatedButton.icon(
                                 onPressed: () {
                                   gameState.startDailyChallenge();
@@ -249,19 +271,21 @@ class HomeScreen extends StatelessWidget {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: EditorialTheme.primary,
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                 ),
                                 icon: Icon(
-                                  gameState.isDailyCompletedToday ? Icons.replay : Icons.play_arrow,
+                                  gameState.isDailyCompletedToday ? Icons.replay : Icons.play_arrow_rounded,
                                   color: EditorialTheme.surface,
-                                  size: 18,
+                                  size: 22,
                                 ),
                                 label: Text(
-                                  gameState.isDailyCompletedToday ? "Rejugar" : "Resolver Ahora",
+                                  gameState.isDailyCompletedToday ? "REJUGAR DESAFÍO" : "RESOLVER AHORA",
                                   style: GoogleFonts.inter(
-                                    fontSize: 12,
+                                    fontSize: 13,
                                     fontWeight: FontWeight.bold,
                                     color: EditorialTheme.surface,
+                                    letterSpacing: 0.8,
                                   ),
                                 ),
                               ),
@@ -271,100 +295,71 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
 
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
 
-              // 4. Secondary Action Cards: Select Dossier or Dictionary
+              // 4. Centered 2x2 Grid of Main Action Cards
               Row(
                 children: [
                   Expanded(
-                    child: InkWell(
+                    child: _buildCenteredActionCard(
+                      context,
+                      gameState,
+                      icon: Icons.flash_on,
+                      iconColor: EditorialTheme.accent,
+                      title: "Partida Rápida",
+                      subtitle: "Juega a tu gusto",
+                      onTap: () => _showCustomGeneratorModal(context, gameState),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildCenteredActionCard(
+                      context,
+                      gameState,
+                      icon: Icons.explore,
+                      iconColor: EditorialTheme.primary,
+                      title: "Temáticas",
+                      subtitle: "Categorías y temas",
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (ctx) => const CategorySelectScreen()),
                         );
                       },
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: EditorialTheme.newspaperCardDecoration,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.explore, color: EditorialTheme.primary, size: 24),
-                            const SizedBox(height: 6),
-                            Text(
-                              "DOSSIERS",
-                              style: EditorialTheme.getEditorialFont(
-                                fontId: gameState.activeFontId,
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              "Niveles y temas",
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                color: EditorialTheme.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+
+              Row(
+                children: [
                   Expanded(
-                    child: InkWell(
+                    child: _buildCenteredActionCard(
+                      context,
+                      gameState,
+                      icon: Icons.auto_stories,
+                      iconColor: EditorialTheme.primary,
+                      title: "Diccionario",
+                      subtitle: "Glosario y pistas",
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (ctx) => const DictionaryScreen()),
                         );
                       },
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: EditorialTheme.newspaperCardDecoration,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.auto_stories, color: EditorialTheme.primary, size: 24),
-                            const SizedBox(height: 6),
-                            Text(
-                              "DICCIONARIO",
-                              style: EditorialTheme.getEditorialFont(
-                                fontId: gameState.activeFontId,
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              "Glosario y pistas",
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                color: EditorialTheme.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ),
-                ],
-              ),
-
-              const SizedBox(height: 14),
-
-              // 5. Navigation Shortcuts (Quiosco / Tienda, Generador)
-              Row(
-                children: [
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: _buildSecondaryCard(
+                    child: _buildCenteredActionCard(
                       context,
+                      gameState,
                       icon: Icons.storefront,
+                      iconColor: EditorialTheme.accent,
                       title: "Quiosco",
-                      subtitle: "Tienda y fuentes",
+                      subtitle: "Tienda y temas",
                       onTap: () {
                         Navigator.push(
                           context,
@@ -373,20 +368,15 @@ class HomeScreen extends StatelessWidget {
                       },
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildSecondaryCard(
-                      context,
-                      icon: Icons.tune,
-                      title: "Generador",
-                      subtitle: "A tu medida",
-                      onTap: () => _showCustomGeneratorModal(context, gameState),
-                    ),
-                  ),
                 ],
               ),
-            ],
-          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -427,43 +417,50 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSecondaryCard(
-    BuildContext context, {
+  Widget _buildCenteredActionCard(
+    BuildContext context,
+    GameStateProvider gameState, {
     required IconData icon,
+    required Color iconColor,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
+      borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
         decoration: EditorialTheme.newspaperCardDecoration,
-        child: Row(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(icon, color: EditorialTheme.primary, size: 24),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: EditorialTheme.textPrimary,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      color: EditorialTheme.textSecondary,
-                    ),
-                  ),
-                ],
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor, size: 24),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: EditorialTheme.getEditorialFont(
+                fontId: gameState.activeFontId,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: EditorialTheme.textSecondary,
               ),
             ),
           ],
@@ -475,10 +472,11 @@ class HomeScreen extends StatelessWidget {
   void _showCustomGeneratorModal(BuildContext context, GameStateProvider gameState) {
     String selectedCategory = "Todos";
     String selectedDifficulty = "medio";
-    int wordsCount = 8;
+    int wordsCount = 9;
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: EditorialTheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -487,13 +485,30 @@ class HomeScreen extends StatelessWidget {
         return StatefulBuilder(
           builder: (ctx, setModalState) {
             return Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: EdgeInsets.only(
+                left: 20.0,
+                right: 20.0,
+                top: 20.0,
+                bottom: MediaQuery.of(ctx).viewInsets.bottom + 20.0,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Handle indicator
+                  Center(
+                    child: Container(
+                      width: 36,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: EditorialTheme.borderLine,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
                   Text(
-                    "GENERADOR PERSONALIZADO",
+                    "PARTIDA A TU GUSTO",
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -502,79 +517,95 @@ class HomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Configura la dificultad y tema del crucigrama",
+                    "Elige opciones sencillas para crear tu crucigrama ideal",
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       color: EditorialTheme.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
 
-                  // Difficulty Row
+                  // 1. Size Presets (Corto, Normal, Grande)
+                  Text(
+                    "Tamaño de Crucigrama:",
+                    style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      _buildPresetSizeChip(
+                        label: "Rápido",
+                        sublabel: "6 Palabras",
+                        icon: Icons.bolt,
+                        count: 6,
+                        currentCount: wordsCount,
+                        onTap: () => setModalState(() => wordsCount = 6),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildPresetSizeChip(
+                        label: "Normal",
+                        sublabel: "9 Palabras",
+                        icon: Icons.grid_view,
+                        count: 9,
+                        currentCount: wordsCount,
+                        onTap: () => setModalState(() => wordsCount = 9),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildPresetSizeChip(
+                        label: "Grande",
+                        sublabel: "12 Palabras",
+                        icon: Icons.military_tech,
+                        count: 12,
+                        currentCount: wordsCount,
+                        onTap: () => setModalState(() => wordsCount = 12),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // 2. Difficulty Selector
                   Text(
                     "Dificultad:",
                     style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   Row(
-                    children: ['facil', 'medio', 'avanzado'].map((diff) {
-                      final isSelected = selectedDifficulty == diff;
-                      return Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                          child: ChoiceChip(
-                            label: Text(diff.toUpperCase()),
-                            selected: isSelected,
-                            selectedColor: EditorialTheme.primary,
-                            labelStyle: GoogleFonts.inter(
-                              color: isSelected ? EditorialTheme.surface : EditorialTheme.textPrimary,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            onSelected: (val) {
-                              if (val) setModalState(() => selectedDifficulty = diff);
-                            },
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Words Count Slider
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "Cantidad de Palabras:",
-                        style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13),
+                      _buildDifficultyOption(
+                        label: "Fácil",
+                        val: "facil",
+                        selected: selectedDifficulty == "facil",
+                        color: EditorialTheme.success,
+                        onTap: () => setModalState(() => selectedDifficulty = "facil"),
                       ),
-                      Text(
-                        "$wordsCount Palabras",
-                        style: GoogleFonts.playfairDisplay(
-                          fontWeight: FontWeight.bold,
-                          color: EditorialTheme.primary,
-                        ),
+                      const SizedBox(width: 8),
+                      _buildDifficultyOption(
+                        label: "Media",
+                        val: "medio",
+                        selected: selectedDifficulty == "medio",
+                        color: EditorialTheme.primary,
+                        onTap: () => setModalState(() => selectedDifficulty = "medio"),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildDifficultyOption(
+                        label: "Avanzada",
+                        val: "avanzado",
+                        selected: selectedDifficulty == "avanzado",
+                        color: EditorialTheme.error,
+                        onTap: () => setModalState(() => selectedDifficulty = "avanzado"),
                       ),
                     ],
                   ),
-                  Slider(
-                    value: wordsCount.toDouble(),
-                    min: 5,
-                    max: 14,
-                    divisions: 9,
-                    activeColor: EditorialTheme.primary,
-                    onChanged: (val) => setModalState(() => wordsCount = val.toInt()),
-                  ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
 
-                  ElevatedButton(
+                  // Start Game Button
+                  ElevatedButton.icon(
                     onPressed: () {
                       Navigator.pop(ctx);
                       gameState.startNewLevel(
-                        title: "Edición Personalizada",
+                        title: "Crucigrama Personalizado",
                         category: selectedCategory,
                         targetWordsCount: wordsCount,
                         difficultyFilter: selectedDifficulty,
@@ -588,15 +619,17 @@ class HomeScreen extends StatelessWidget {
                       backgroundColor: EditorialTheme.primary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: Text(
-                      "Crear Crucigrama",
+                    icon: const Icon(Icons.play_arrow_rounded, color: EditorialTheme.surface, size: 24),
+                    label: Text(
+                      "¡EMPEZAR A JUGAR!",
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
                         color: EditorialTheme.surface,
                         fontSize: 15,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ),
@@ -606,6 +639,93 @@ class HomeScreen extends StatelessWidget {
           },
         );
       },
+    );
+  }
+
+  Widget _buildPresetSizeChip({
+    required String label,
+    required String sublabel,
+    required IconData icon,
+    required int count,
+    required int currentCount,
+    required VoidCallback onTap,
+  }) {
+    final isSelected = count == currentCount;
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? EditorialTheme.primary.withValues(alpha: 0.12) : EditorialTheme.surface,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isSelected ? EditorialTheme.primary : EditorialTheme.borderLine,
+              width: isSelected ? 2.0 : 1.0,
+            ),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, size: 20, color: isSelected ? EditorialTheme.primary : EditorialTheme.textSecondary),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected ? EditorialTheme.primary : EditorialTheme.textPrimary,
+                ),
+              ),
+              Text(
+                sublabel,
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  color: EditorialTheme.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDifficultyOption({
+    required String label,
+    required String val,
+    required bool selected,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: selected ? color.withValues(alpha: 0.15) : EditorialTheme.surface,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: selected ? color : EditorialTheme.borderLine,
+              width: selected ? 2.0 : 1.0,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: selected ? color : EditorialTheme.textPrimary,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

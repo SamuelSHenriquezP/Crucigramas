@@ -171,11 +171,13 @@ class _CrosswordGameScreenState extends State<CrosswordGameScreen> {
               ? const Center(child: Text("Error al generar crucigrama"))
               : SafeArea(
                   child: Column(
-                    children: [
-                      // Level Progress Indicator Bar
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4.0),
-                        child: Row(
+                children: [
+                  // Level Progress Indicator Bar
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+                    child: Column(
+                      children: [
+                        Row(
                           children: [
                             Text(
                               "PROGRESO EN LA EDICIÓN",
@@ -192,31 +194,45 @@ class _CrosswordGameScreenState extends State<CrosswordGameScreen> {
                               style: GoogleFonts.playfairDisplay(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: EditorialTheme.accent,
+                                color: EditorialTheme.primary,
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 4),
-
-                      // Interactive Crossword Board Grid
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                          child: Center(
-                            child: CrosswordGridWidget(board: gameState.currentBoard!),
+                        const SizedBox(height: 4),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: gameState.currentBoard!.placedWords.isEmpty
+                                ? 0.0
+                                : _getSolvedWordsCount(gameState.currentBoard!) /
+                                    gameState.currentBoard!.placedWords.length,
+                            backgroundColor: EditorialTheme.borderLine.withValues(alpha: 0.4),
+                            color: EditorialTheme.accent,
+                            minHeight: 5,
                           ),
                         ),
-                      ),
-
-                      // Clue Dock
-                      const ClueDockWidget(),
-
-                      // QWERTY On-Screen Keyboard
-                      const EditorialKeyboard(),
-                    ],
+                      ],
+                    ),
                   ),
+
+                  // Interactive Crossword Board Grid
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Center(
+                        child: CrosswordGridWidget(board: gameState.currentBoard!),
+                      ),
+                    ),
+                  ),
+
+                  // Clue Dock
+                  const ClueDockWidget(),
+
+                  // QWERTY On-Screen Keyboard
+                  const EditorialKeyboard(),
+                ],
+              ),
                 ),
     );
   }

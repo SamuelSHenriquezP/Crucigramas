@@ -18,7 +18,7 @@ class EditorialKeyboard extends StatelessWidget {
     final gameState = Provider.of<GameStateProvider>(context, listen: false);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 6.0),
       decoration: const BoxDecoration(
         color: EditorialTheme.background,
         border: Border(
@@ -29,7 +29,7 @@ class EditorialKeyboard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: _keys.map((row) {
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 3.0),
+            padding: const EdgeInsets.symmetric(vertical: 2.5),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: row.map((key) {
@@ -39,8 +39,7 @@ class EditorialKeyboard extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 2.0),
                     child: Material(
-                      color: isDel ? EditorialTheme.primary : EditorialTheme.surface,
-                      borderRadius: BorderRadius.circular(4.0),
+                      color: Colors.transparent,
                       child: InkWell(
                         onTap: () {
                           if (isDel) {
@@ -49,18 +48,27 @@ class EditorialKeyboard extends StatelessWidget {
                             gameState.onKeyInput(key);
                           }
                         },
-                        borderRadius: BorderRadius.circular(4.0),
-                        child: Container(
-                          height: 42,
+                        borderRadius: BorderRadius.circular(5.0),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 100),
+                          height: 44,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4.0),
+                            color: isDel ? EditorialTheme.primary : EditorialTheme.surface,
+                            borderRadius: BorderRadius.circular(5.0),
                             border: Border.all(
                               color: isDel
-                                  ? EditorialTheme.inkDark
+                                  ? EditorialTheme.primary
                                   : EditorialTheme.borderLine,
-                              width: 1.0,
+                              width: 1.2,
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: EditorialTheme.textPrimary.withValues(alpha: 0.05),
+                                blurRadius: 2,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
                           ),
                           child: isDel
                               ? const Icon(
