@@ -352,8 +352,12 @@ class GameStateProvider with ChangeNotifier {
     if (cell.userChar.isNotEmpty) {
       cell.userChar = '';
       cell.isError = false;
+      _moveCursorBack();
     } else {
       _moveCursorBack();
+      final prevCell = _currentBoard!.grid[_focusedRow][_focusedCol];
+      prevCell.userChar = '';
+      prevCell.isError = false;
     }
     saveLevelDraft();
     notifyListeners();
@@ -368,11 +372,17 @@ class GameStateProvider with ChangeNotifier {
       int nextC = _focusedCol + 1;
       if (nextC <= word.endCol && !_currentBoard!.grid[_focusedRow][nextC].isBlack) {
         _focusedCol = nextC;
+      } else {
+        // Automatically advance to the next word in the list
+        selectNextWord();
       }
     } else {
       int nextR = _focusedRow + 1;
       if (nextR <= word.endRow && !_currentBoard!.grid[nextR][_focusedCol].isBlack) {
         _focusedRow = nextR;
+      } else {
+        // Automatically advance to the next word in the list
+        selectNextWord();
       }
     }
   }
