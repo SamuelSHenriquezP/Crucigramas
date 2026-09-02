@@ -216,14 +216,15 @@ class CategorySelectScreen extends StatelessWidget {
     GameStateProvider gameState,
     String categoryName,
   ) {
-    IconData iconData = Icons.auto_stories;
-    if (categoryName.contains("Historia")) iconData = Icons.history_edu;
-    if (categoryName.contains("Ciencia")) iconData = Icons.science;
-    if (categoryName.contains("Arte")) iconData = Icons.palette;
-    if (categoryName.contains("Geografía")) iconData = Icons.public;
-    if (categoryName.contains("Tecnología")) iconData = Icons.memory;
-    if (categoryName.contains("Filosofía")) iconData = Icons.psychology;
-    if (categoryName.contains("Entretenimiento")) iconData = Icons.movie;
+    String imageName = "dossier_literatura.png";
+    if (categoryName.contains("Historia")) imageName = "dossier_historia.png";
+    if (categoryName.contains("Ciencia")) imageName = "dossier_ciencia.png";
+    if (categoryName.contains("Arte")) imageName = "dossier_arte.png";
+    if (categoryName.contains("Geografía")) imageName = "dossier_geografia.png";
+    if (categoryName.contains("Tecnología")) imageName = "dossier_tecnologia.png";
+    if (categoryName.contains("Filosofía")) imageName = "dossier_filosofia.png";
+    if (categoryName.contains("Entretenimiento")) imageName = "dossier_entretenimiento.png";
+    if (categoryName.contains("Literatura")) imageName = "dossier_literatura.png";
 
     return InkWell(
       onTap: () {
@@ -238,13 +239,33 @@ class CategorySelectScreen extends StatelessWidget {
       },
       borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(12),
         decoration: EditorialTheme.newspaperCardDecoration,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(iconData, color: EditorialTheme.primary, size: 28),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 46,
+                  height: 46,
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: EditorialTheme.primary.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: EditorialTheme.borderLine, width: 1.0),
+                  ),
+                  child: Image.asset(
+                    "assets/images/$imageName",
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios, size: 14, color: EditorialTheme.primary),
+              ],
+            ),
+            const SizedBox(height: 6),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -259,9 +280,9 @@ class CategorySelectScreen extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  "Especializado",
+                  "Dossier Especializado",
                   style: GoogleFonts.inter(
-                    fontSize: 11,
+                    fontSize: 10,
                     color: EditorialTheme.textSecondary,
                   ),
                 ),
