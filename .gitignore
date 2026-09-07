@@ -40,3 +40,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# AI Personal Style Guidelines & Agent Rules (Local only)
+AGENTS.md
+GEMINI.md
+.agents/
+

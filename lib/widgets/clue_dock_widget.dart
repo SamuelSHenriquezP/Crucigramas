@@ -75,83 +75,96 @@ class _ClueDockWidgetState extends State<ClueDockWidget> {
               ),
               const SizedBox(width: 8),
 
-              // Direction & Length Pills
+              // Direction & Length Pills (Scales cleanly without overlap)
               Expanded(
-                child: Row(
-                  children: [
-                    Text(
-                      directionText,
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.1,
-                        color: EditorialTheme.accent,
-                      ),
-                    ),
-                    if (wordLengthText.isNotEmpty) ...[
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    children: [
                       Text(
-                        " • ",
-                        style: GoogleFonts.inter(fontSize: 10, color: EditorialTheme.textSecondary),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                        decoration: BoxDecoration(
-                          color: EditorialTheme.primary.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(3),
+                        directionText,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.1,
+                          color: EditorialTheme.accent,
                         ),
-                        child: Text(
-                          wordLengthText,
-                          style: GoogleFonts.inter(
-                            fontSize: 9.5,
-                            fontWeight: FontWeight.bold,
-                            color: EditorialTheme.primary,
+                      ),
+                      if (wordLengthText.isNotEmpty) ...[
+                        Text(
+                          " • ",
+                          style: GoogleFonts.inter(fontSize: 11, color: EditorialTheme.textSecondary),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                          decoration: BoxDecoration(
+                            color: EditorialTheme.primary.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: Text(
+                            wordLengthText,
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: EditorialTheme.primary,
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
 
               // Clue Navigation Controls
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton(
-                    onPressed: () => gameState.selectPreviousWord(),
-                    icon: const Icon(Icons.chevron_left, color: EditorialTheme.primary, size: 24),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    tooltip: "Pista anterior",
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => gameState.selectPreviousWord(),
+                      borderRadius: BorderRadius.circular(4),
+                      child: const Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: Icon(Icons.chevron_left, color: EditorialTheme.primary, size: 22),
+                      ),
+                    ),
                   ),
-                  const SizedBox(width: 4),
-                  IconButton(
-                    onPressed: () => gameState.selectNextWord(),
-                    icon: const Icon(Icons.chevron_right, color: EditorialTheme.primary, size: 24),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    tooltip: "Siguiente pista",
+                  const SizedBox(width: 2),
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => gameState.selectNextWord(),
+                      borderRadius: BorderRadius.circular(4),
+                      child: const Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: Icon(Icons.chevron_right, color: EditorialTheme.primary, size: 22),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 6),
-                  IconButton(
-                    onPressed: () {
-                      if (gameState.currentBoard != null) {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          builder: (ctx) => ClueListModal(board: gameState.currentBoard!),
-                        );
-                      }
-                    },
-                    icon: const Icon(
-                      Icons.format_list_bulleted,
-                      color: EditorialTheme.primary,
-                      size: 22,
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        if (gameState.currentBoard != null) {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (ctx) => ClueListModal(board: gameState.currentBoard!),
+                          );
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(4),
+                      child: const Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: Icon(Icons.format_list_bulleted, color: EditorialTheme.accent, size: 20),
+                      ),
                     ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    tooltip: "Ver todas las pistas",
                   ),
                 ],
               ),

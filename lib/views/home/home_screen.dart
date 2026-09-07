@@ -10,11 +10,11 @@ import '../game/crossword_game_screen.dart';
 import '../dictionary/dictionary_screen.dart';
 import '../shop/shop_screen.dart';
 import '../categories/category_select_screen.dart';
+import '../../widgets/newspaper_tutorial_dialog.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  @override
   @override
   Widget build(BuildContext context) {
     final gameState = Provider.of<GameStateProvider>(context);
@@ -369,6 +369,59 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+
+              const SizedBox(height: 14),
+
+              // Manual del Crucigramista banner
+              InkWell(
+                onTap: () => NewspaperTutorialDialog.show(context),
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: EditorialTheme.surface,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: EditorialTheme.borderLine, width: 1.2),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: EditorialTheme.primary.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.menu_book, color: EditorialTheme.primary, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Manual del Crucigramista",
+                              style: GoogleFonts.playfairDisplay(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: EditorialTheme.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              "Aprende controles de zoom, navegación y reglas de juego",
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                color: EditorialTheme.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right, color: EditorialTheme.accent, size: 22),
+                    ],
+                  ),
+                ),
               ),
                       ],
                     ),

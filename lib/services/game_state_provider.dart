@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/crossword_board.dart';
 import '../models/crossword_cell.dart';
@@ -19,6 +20,11 @@ class GameStateProvider with ChangeNotifier {
   bool _isLevelComplete = false;
   int _elapsedSeconds = 0;
   bool _isLoading = false;
+
+  // Word completion celebration
+  final Set<int> _completedWordIdsInCurrentLevel = {};
+  PlacedWord? _lastCompletedWordCelebration;
+  int _wordCelebrationTick = 0;
 
   // Daily Challenge Tracking
   String _lastDailyCompletedDate = '';
@@ -43,6 +49,9 @@ class GameStateProvider with ChangeNotifier {
   List<WordEntry> get newlyDiscoveredWords => _newlyDiscoveredWords;
   bool get isDailyLevel => _isDailyLevel;
   int get levelReward => _levelReward;
+  Set<int> get completedWordIdsInCurrentLevel => _completedWordIdsInCurrentLevel;
+  PlacedWord? get lastCompletedWordCelebration => _lastCompletedWordCelebration;
+  int get wordCelebrationTick => _wordCelebrationTick;
 
   String get todayDateString {
     final now = DateTime.now();
@@ -248,6 +257,8 @@ class GameStateProvider with ChangeNotifier {
   }) async {
     _isLoading = true;
     _isLevelComplete = false;
+    _completedWordIdsInCurrentLevel.clear();
+    _lastCompletedWordCelebration = null;
     _newlyDiscoveredWords = [];
     _elapsedSeconds = 0;
     _levelReward = reward;
@@ -277,7 +288,8 @@ class GameStateProvider with ChangeNotifier {
         if (!_currentBoard!.grid[r][c].isBlack) {
           _focusedRow = r;
           _focusedCol = c;
-          _isAcrossFocus = true;
+          final hasAcross = _currentBoard!.placedWords.any((w) => w.isAcross && w.containsCell(r, c));
+          _isAcrossFocus = hasAcross;
           return;
         }
       }
@@ -289,12 +301,27 @@ class GameStateProvider with ChangeNotifier {
     final cell = _currentBoard!.grid[r][c];
     if (cell.isBlack) return;
 
+    final matchingWords = _currentBoard!.placedWords.where((w) => w.containsCell(r, c)).toList();
+    if (matchingWords.isEmpty) return;
+
+    final hasAcross = matchingWords.any((w) => w.isAcross);
+    final hasDown = matchingWords.any((w) => !w.isAcross);
+
     if (_focusedRow == r && _focusedCol == c) {
-      // Toggle direction if tapping the same cell again
-      _isAcrossFocus = !_isAcrossFocus;
+      // Toggle direction only if this cell is an intersection of both Across & Down
+      if (hasAcross && hasDown) {
+        _isAcrossFocus = !_isAcrossFocus;
+      }
     } else {
       _focusedRow = r;
       _focusedCol = c;
+      // If cell only belongs to one direction, strictly enforce that direction
+      if (hasAcross && !hasDown) {
+        _isAcrossFocus = true;
+      } else if (!hasAcross && hasDown) {
+        _isAcrossFocus = false;
+      }
+      // If cell belongs to both, preserve the current direction so movement stays natural
     }
     notifyListeners();
   }
@@ -306,27 +333,31 @@ class GameStateProvider with ChangeNotifier {
 
   void selectNextWord() {
     if (_currentBoard == null) return;
-    final words = _isAcrossFocus ? _currentBoard!.acrossWords : _currentBoard!.downWords;
-    if (words.isEmpty) return;
+    final allWords = _currentBoard!.placedWords;
+    if (allWords.isEmpty) return;
 
-    int curIdx = words.indexWhere((w) => w == currentFocusedWord);
-    int nextIdx = (curIdx + 1) % words.length;
-    final nextW = words[nextIdx];
+    final curWord = currentFocusedWord;
+    int curIdx = allWords.indexWhere((w) => w == curWord);
+    int nextIdx = (curIdx + 1) % allWords.length;
+    final nextW = allWords[nextIdx];
     _focusedRow = nextW.startRow;
     _focusedCol = nextW.startCol;
+    _isAcrossFocus = nextW.isAcross;
     notifyListeners();
   }
 
   void selectPreviousWord() {
     if (_currentBoard == null) return;
-    final words = _isAcrossFocus ? _currentBoard!.acrossWords : _currentBoard!.downWords;
-    if (words.isEmpty) return;
+    final allWords = _currentBoard!.placedWords;
+    if (allWords.isEmpty) return;
 
-    int curIdx = words.indexWhere((w) => w == currentFocusedWord);
-    int prevIdx = (curIdx - 1 + words.length) % words.length;
-    final prevW = words[prevIdx];
+    final curWord = currentFocusedWord;
+    int curIdx = allWords.indexWhere((w) => w == curWord);
+    int prevIdx = (curIdx - 1 + allWords.length) % allWords.length;
+    final prevW = allWords[prevIdx];
     _focusedRow = prevW.startRow;
     _focusedCol = prevW.startCol;
+    _isAcrossFocus = prevW.isAcross;
     notifyListeners();
   }
 
@@ -368,21 +399,44 @@ class GameStateProvider with ChangeNotifier {
     final word = currentFocusedWord;
     if (word == null) return;
 
-    if (_isAcrossFocus) {
+    final isAcross = word.isAcross;
+    _isAcrossFocus = isAcross; // Ensure state is always in sync with active word
+
+    if (isAcross) {
+      // Look for next empty cell ahead in the current horizontal word
       int nextC = _focusedCol + 1;
-      if (nextC <= word.endCol && !_currentBoard!.grid[_focusedRow][nextC].isBlack) {
-        _focusedCol = nextC;
-      } else {
-        // Automatically advance to the next word in the list
-        selectNextWord();
+      bool foundEmpty = false;
+      for (int c = nextC; c <= word.endCol; c++) {
+        if (!_currentBoard!.grid[_focusedRow][c].isBlack &&
+            _currentBoard!.grid[_focusedRow][c].userChar.isEmpty) {
+          _focusedCol = c;
+          foundEmpty = true;
+          break;
+        }
+      }
+      if (!foundEmpty) {
+        if (nextC <= word.endCol && !_currentBoard!.grid[_focusedRow][nextC].isBlack) {
+          _focusedCol = nextC;
+        }
+        // If at the end of the word, stay in the word instead of jumping abruptly
       }
     } else {
+      // Look for next empty cell ahead in the current vertical word
       int nextR = _focusedRow + 1;
-      if (nextR <= word.endRow && !_currentBoard!.grid[nextR][_focusedCol].isBlack) {
-        _focusedRow = nextR;
-      } else {
-        // Automatically advance to the next word in the list
-        selectNextWord();
+      bool foundEmpty = false;
+      for (int r = nextR; r <= word.endRow; r++) {
+        if (!_currentBoard!.grid[r][_focusedCol].isBlack &&
+            _currentBoard!.grid[r][_focusedCol].userChar.isEmpty) {
+          _focusedRow = r;
+          foundEmpty = true;
+          break;
+        }
+      }
+      if (!foundEmpty) {
+        if (nextR <= word.endRow && !_currentBoard!.grid[nextR][_focusedCol].isBlack) {
+          _focusedRow = nextR;
+        }
+        // If at the end of the word, stay in the word instead of jumping abruptly
       }
     }
   }
@@ -392,7 +446,8 @@ class GameStateProvider with ChangeNotifier {
     final word = currentFocusedWord;
     if (word == null) return;
 
-    if (_isAcrossFocus) {
+    final isAcross = word.isAcross;
+    if (isAcross) {
       int prevC = _focusedCol - 1;
       if (prevC >= word.startCol && !_currentBoard!.grid[_focusedRow][prevC].isBlack) {
         _focusedCol = prevC;
@@ -407,6 +462,28 @@ class GameStateProvider with ChangeNotifier {
 
   void _checkWordAndBoardCompletion() {
     if (_currentBoard == null) return;
+
+    // Check individual word completions for micro-celebration
+    for (final word in _currentBoard!.placedWords) {
+      if (!_completedWordIdsInCurrentLevel.contains(word.wordId)) {
+        bool wordComplete = true;
+        for (int i = 0; i < word.word.length; i++) {
+          int r = word.isAcross ? word.startRow : word.startRow + i;
+          int c = word.isAcross ? word.startCol + i : word.startCol;
+          final cell = _currentBoard!.grid[r][c];
+          if (!cell.isCorrect) {
+            wordComplete = false;
+            break;
+          }
+        }
+        if (wordComplete) {
+          _completedWordIdsInCurrentLevel.add(word.wordId);
+          _lastCompletedWordCelebration = word;
+          _wordCelebrationTick++;
+          HapticFeedback.mediumImpact();
+        }
+      }
+    }
 
     if (_currentBoard!.isComplete) {
       _isLevelComplete = true;

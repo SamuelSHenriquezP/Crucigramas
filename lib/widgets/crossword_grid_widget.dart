@@ -37,10 +37,11 @@ class _CrosswordGridWidgetState extends State<CrosswordGridWidget> {
 
   void _handleZoomChange() {
     final scale = _transformationController.value.getMaxScaleOnAxis();
-    final isZoomedNow = (scale - 1.0).abs() > 0.08;
-    if (isZoomedNow != _isZoomed) {
+    final translation = _transformationController.value.getTranslation();
+    final isMoved = (scale - 1.0).abs() > 0.08 || translation.x.abs() > 15 || translation.y.abs() > 15;
+    if (isMoved != _isZoomed) {
       setState(() {
-        _isZoomed = isZoomedNow;
+        _isZoomed = isMoved;
       });
     }
   }
@@ -61,28 +62,18 @@ class _CrosswordGridWidgetState extends State<CrosswordGridWidget> {
     return Stack(
       alignment: Alignment.topRight,
       children: [
-        // Interactive Zoomable Container
+        // Interactive Zoomable Container with strict boundary constraints
         InteractiveViewer(
           transformationController: _transformationController,
-          minScale: 0.9,
-          maxScale: 3.5,
+          boundaryMargin: const EdgeInsets.all(16.0),
+          minScale: 0.85,
+          maxScale: 3.0,
           clipBehavior: Clip.hardEdge,
           child: AspectRatio(
             aspectRatio: widget.board.cols / widget.board.rows,
             child: Container(
               padding: const EdgeInsets.all(3.0),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF4F1EA), // Vintage newspaper paper
-                borderRadius: BorderRadius.circular(6.0),
-                border: Border.all(color: EditorialTheme.inkDark, width: 2.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: EditorialTheme.inkDark.withValues(alpha: 0.15),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
+              color: Colors.transparent,
               child: GridView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -97,31 +88,25 @@ class _CrosswordGridWidgetState extends State<CrosswordGridWidget> {
                   final c = index % widget.board.cols;
                   final cell = widget.board.grid[r][c];
 
-                  // Black / Blocked Newspaper Cell
+                  // Transparent cell for blocked positions
                   if (cell.isBlack) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1F2327), // Deep Sepia Ink
-                        borderRadius: BorderRadius.circular(2.0),
-                        border: Border.all(color: const Color(0xFF14171A), width: 0.5),
-                      ),
-                    );
+                    return const SizedBox.shrink();
                   }
 
                   final isFocused = (gameState.focusedRow == r && gameState.focusedCol == c);
                   final isInFocusedWord = focusedWord != null && focusedWord.containsCell(r, c);
 
-                  // Colors palette for cells
+                  // Colors palette for cells (Authentic newsprint)
                   Color bgColor = Colors.white;
                   if (isFocused) {
-                    bgColor = const Color(0xFFFDF3D6); // Amber Warm Tint
+                    bgColor = const Color(0xFFFDE68A); // Warm amber newsprint highlighter
                   } else if (isInFocusedWord) {
-                    bgColor = const Color(0xFFEBF3F5); // Petrol Tint
+                    bgColor = const Color(0xFFE6EEF2); // Soft petroleum ink tint
                   } else if (cell.isError) {
-                    bgColor = const Color(0xFFFDE8E8);
+                    bgColor = const Color(0xFFFEE2E2); // Soft terracotta tint
                   }
 
-                  Color textColor = EditorialTheme.textPrimary;
+                  Color textColor = const Color(0xFF1A1D20); // Carbon ink
                   if (cell.isError) {
                     textColor = EditorialTheme.error;
                   } else if (cell.isRevealed) {
@@ -129,43 +114,41 @@ class _CrosswordGridWidgetState extends State<CrosswordGridWidget> {
                   }
 
                   Widget cellContent = AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
+                    duration: const Duration(milliseconds: 120),
                     decoration: BoxDecoration(
                       color: bgColor,
-                      borderRadius: BorderRadius.circular(2.5),
+                      borderRadius: BorderRadius.circular(1.5),
                       border: Border.all(
                         color: isFocused
-                            ? EditorialTheme.accent
+                            ? const Color(0xFFB45309) // Deep amber border
                             : (isInFocusedWord
-                                ? EditorialTheme.primary.withValues(alpha: 0.7)
-                                : const Color(0xFFC0BBAF)),
-                        width: isFocused ? 2.5 : 1.0,
+                                ? EditorialTheme.primary
+                                : const Color(0xFF948F82)), // Fine newsprint rule
+                        width: isFocused ? 2.0 : (isInFocusedWord ? 1.2 : 0.8),
                       ),
                     ),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         final h = constraints.maxHeight;
-                        // Proportional font sizing guaranteed not to overlap
-                        final numFontSize = (h * 0.28).clamp(7.5, 12.0);
-                        final letterFontSize = (h * 0.52).clamp(11.0, 24.0);
-                        final topPadding = cell.number != null ? (h * 0.28) : 0.0;
+                        // Proportional font sizing for crisp newspaper legibility
+                        final numFontSize = (h * 0.26).clamp(7.0, 11.5);
+                        final letterFontSize = (h * 0.60).clamp(13.0, 26.0);
 
                         return Stack(
+                          clipBehavior: Clip.none,
                           children: [
-                            // 1. Top-Left Clue Number (Strictly bounded in top 30% of cell)
+                            // 1. Clue Number (Crisp, sharp top-left corner)
                             if (cell.number != null)
                               Positioned(
-                                top: 2.0,
-                                left: 3.0,
+                                top: 1.5,
+                                left: 2.5,
                                 child: Text(
                                   "${cell.number}",
                                   style: GoogleFonts.inter(
                                     fontSize: numFontSize,
                                     fontWeight: FontWeight.w800,
                                     height: 1.0,
-                                    color: isFocused
-                                        ? EditorialTheme.primary
-                                        : EditorialTheme.textPrimary.withValues(alpha: 0.85),
+                                    color: const Color(0xFF222629),
                                   ),
                                 ),
                               ),
@@ -174,22 +157,20 @@ class _CrosswordGridWidgetState extends State<CrosswordGridWidget> {
                             if (isFocused)
                               Positioned(
                                 top: 2.0,
-                                right: 3.0,
+                                right: 2.5,
                                 child: Icon(
                                   gameState.isAcrossFocus ? Icons.arrow_forward : Icons.arrow_downward,
                                   size: numFontSize * 0.95,
-                                  color: EditorialTheme.primary,
+                                  color: const Color(0xFF78350F),
                                 ),
                               ),
 
-                            // 3. User Input Letter (Bounded in lower region with top padding)
+                            // 3. Main Letter Display (Optically centered with slight top offset if number exists)
                             Positioned.fill(
                               child: Padding(
                                 padding: EdgeInsets.only(
-                                  top: topPadding,
+                                  top: cell.number != null ? (h * 0.18) : 0.0,
                                   bottom: 1.0,
-                                  left: 1.0,
-                                  right: 1.0,
                                 ),
                                 child: Center(
                                   child: FittedBox(
@@ -200,13 +181,13 @@ class _CrosswordGridWidgetState extends State<CrosswordGridWidget> {
                                       style: EditorialTheme.getEditorialFont(
                                         fontId: activeFontId,
                                         fontSize: letterFontSize,
-                                        fontWeight: FontWeight.w700,
+                                        fontWeight: FontWeight.w800,
                                         color: textColor,
                                       ),
                                     ).animate(
                                       key: ValueKey("anim_${r}_${c}_${cell.userChar}"),
                                     ).scale(
-                                      duration: 150.ms,
+                                      duration: 120.ms,
                                       curve: Curves.easeOutBack,
                                     ),
                                   ),
@@ -222,7 +203,7 @@ class _CrosswordGridWidgetState extends State<CrosswordGridWidget> {
                   // Shimmer flare for revealed letters
                   if (cell.isRevealed) {
                     cellContent = cellContent.animate().shimmer(
-                      duration: 800.ms,
+                      duration: 700.ms,
                       color: EditorialTheme.accent.withValues(alpha: 0.6),
                     );
                   }

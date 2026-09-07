@@ -22,7 +22,7 @@ class TempWord {
 }
 
 class CrosswordGenerator {
-  static const int maxGridSize = 24;
+  static const int maxGridSize = 32;
 
   static Future<CrosswordBoard> generateBoard({
     required String title,
@@ -38,35 +38,55 @@ class CrosswordGenerator {
 
     List<WordEntry> candidates = repo.getWordsByCategory(category);
     if (difficultyFilter != null) {
-      candidates = candidates.where((w) => w.difficulty == difficultyFilter).toList();
+      final diffFiltered = candidates.where((w) => w.difficulty == difficultyFilter).toList();
+      if (diffFiltered.length >= targetWordsCount + 5) {
+        candidates = diffFiltered;
+      } else {
+        // Supplement with other words of the same category
+        final remainingInCat = candidates.where((w) => w.difficulty != difficultyFilter).toList()..shuffle();
+        candidates = [...diffFiltered, ...remainingInCat];
+      }
     }
 
-    if (candidates.length < 5) {
-      candidates = repo.allWords; // Fallback to all words if category is small
+    // Ensure we have a generous candidate pool (at least targetWordsCount + 25)
+    if (candidates.length < targetWordsCount + 25) {
+      final allMatchingDiff = repo.allWords.where((w) => difficultyFilter == null || w.difficulty == difficultyFilter).toList()..shuffle();
+      candidates = {...candidates, ...allMatchingDiff, ...repo.allWords}.toList();
     }
 
     CrosswordBoard? bestBoard;
-    int maxScore = -1;
+    int maxScore = -999999;
 
     // Run multiple procedural attempts to get the highest density, best connected layout
     final random = Random();
-    for (int attempt = 0; attempt < 35; attempt++) {
-      candidates.shuffle(random);
+    for (int attempt = 0; attempt < 70; attempt++) {
+      // Pick one of the longest candidate words as the starting root
+      final sortedLongest = [...candidates]..sort((a, b) => b.word.length.compareTo(a.word.length));
+      final rootCandidates = sortedLongest.take(10).toList();
+      final firstWord = rootCandidates[random.nextInt(rootCandidates.length)];
+      final remainingCandidates = candidates.where((w) => w.id != firstWord.id).toList()..shuffle(random);
+
       final board = _buildSingleBoardAttempt(
         title: title,
         category: category,
-        candidates: candidates,
+        firstWord: firstWord,
+        candidates: remainingCandidates,
         targetWordsCount: targetWordsCount,
         maxSize: maxGridSize,
       );
 
       if (board != null) {
-        // High reward for placed word count, high penalty for sparse/large grid area
+        // Words placed is given massive priority over area penalty
         int area = board.rows * board.cols;
-        int score = (board.placedWords.length * 35) - (area * 2) - ((board.rows - board.cols).abs() * 4);
+        int score = (board.placedWords.length * 1000) - (area * 3) - ((board.rows - board.cols).abs() * 15);
         if (score > maxScore) {
           maxScore = score;
           bestBoard = board;
+        }
+
+        // If an attempt successfully reached the requested targetWordsCount, we have an excellent board!
+        if (board.placedWords.length >= targetWordsCount && attempt > 15) {
+          break;
         }
       }
     }
@@ -82,6 +102,7 @@ class CrosswordGenerator {
   static CrosswordBoard? _buildSingleBoardAttempt({
     required String title,
     required String category,
+    required WordEntry firstWord,
     required List<WordEntry> candidates,
     required int targetWordsCount,
     required int maxSize,
@@ -94,8 +115,7 @@ class CrosswordGenerator {
 
     List<TempWord> placedTempWords = [];
 
-    // 1. Place first longest word in middle
-    final firstWord = candidates.first;
+    // 1. Place first word in middle horizontally
     int startRow = maxSize ~/ 2;
     int startCol = (maxSize - firstWord.word.length) ~/ 2;
 
@@ -110,7 +130,7 @@ class CrosswordGenerator {
     ));
 
     // 2. Try placing remaining candidate words by finding intersecting letters
-    for (int cIdx = 1; cIdx < candidates.length && placedTempWords.length < targetWordsCount; cIdx++) {
+    for (int cIdx = 0; cIdx < candidates.length && placedTempWords.length < targetWordsCount; cIdx++) {
       final candidate = candidates[cIdx];
       bool placed = false;
 
@@ -125,23 +145,17 @@ class CrosswordGenerator {
 
           for (int j = 0; j < existingWord.entry.word.length; j++) {
             if (existingWord.entry.word[j] == char) {
-              // Try intersecting here!
-              // If existing word is Across, candidate will be Down, and vice versa.
               final newIsAcross = !existingWord.isAcross;
               int newStartRow, newStartCol;
 
               if (existingWord.isAcross) {
-                // Existing is Across at existingWord.startRow, col = startCol + j
                 int intRow = existingWord.startRow;
                 int intCol = existingWord.startCol + j;
-
                 newStartRow = intRow - i;
                 newStartCol = intCol;
               } else {
-                // Existing is Down at row = startRow + j, col = startCol
                 int intRow = existingWord.startRow + j;
                 int intCol = existingWord.startCol;
-
                 newStartRow = intRow;
                 newStartCol = intCol - i;
               }
@@ -326,17 +340,18 @@ class CrosswordGenerator {
   }
 
   static CrosswordBoard _buildFallbackBoard({required String title, required String category}) {
-    // Elegant hardcoded 8x8 fallback crossword board
-    final w1 = PlacedWord(word: "ALQUIMIA", clue: "Doctrina y estudio especulativo de la transmutación de la materia", category: "Historia", wordId: 1, startRow: 1, startCol: 0, isAcross: true, number: 1);
+    // Tightly cropped fallback crossword board (5 rows x 8 cols)
+    final w1 = PlacedWord(word: "ALQUIMIA", clue: "Doctrina especulativa enfocada en la transmutación de la materia", category: "Historia", wordId: 1, startRow: 1, startCol: 0, isAcross: true, number: 1);
     final w2 = PlacedWord(word: "CINE", clue: "Arte y técnica de la cinematografía", category: "Cine", wordId: 14, startRow: 0, startCol: 4, isAcross: false, number: 2);
     final w3 = PlacedWord(word: "METAFORA", clue: "Traslación del sentido recto de una voz a otro figurado", category: "Lenguaje", wordId: 4, startRow: 3, startCol: 0, isAcross: true, number: 3);
+    final w4 = PlacedWord(word: "ARTE", clue: "Manifestación de la actividad humana mediante la cual se expresa una visión estética", category: "Arte", wordId: 10, startRow: 1, startCol: 0, isAcross: false, number: 4);
 
-    const rows = 8;
+    const rows = 5;
     const cols = 8;
     List<List<CrosswordCell>> grid = List.generate(rows, (r) => List.generate(cols, (c) => CrosswordCell(row: r, col: c, solutionChar: '', isBlack: true)));
 
     // Fill grid
-    for (final pw in [w1, w2, w3]) {
+    for (final pw in [w1, w2, w3, w4]) {
       for (int i = 0; i < pw.word.length; i++) {
         int r = pw.isAcross ? pw.startRow : pw.startRow + i;
         int c = pw.isAcross ? pw.startCol + i : pw.startCol;
@@ -356,7 +371,7 @@ class CrosswordGenerator {
       rows: rows,
       cols: cols,
       grid: grid,
-      placedWords: [w1, w2, w3],
+      placedWords: [w1, w2, w3, w4],
     );
   }
 }

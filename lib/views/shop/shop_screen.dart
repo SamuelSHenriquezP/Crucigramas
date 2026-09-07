@@ -6,73 +6,80 @@ import '../../services/ad_manager.dart';
 import '../../services/game_state_provider.dart';
 import '../../services/iap_service.dart';
 import '../../theme/editorial_theme.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class ShopScreen extends StatelessWidget {
   const ShopScreen({super.key});
 
-  static final List<ShopItem> _shopItems = [
-    // Theme Unlocks
+  static final List<ShopItem> _themes = [
     ShopItem(
       id: 'default_theme',
       title: 'Papel Prensa Clásico',
-      description: 'El estilo original de periódico en marfil cálido y tinta carbón.',
+      description: 'Papel marfil cálido tradicional con tinta carbón profundo de imprenta.',
       price: 0,
       type: ShopItemType.theme,
       iconName: 'newspaper',
+      data: {'bg': 0xFFF7F5EF, 'ink': 0xFF202124, 'accent': 0xFFD9A63A},
     ),
     ShopItem(
       id: 'theme_sepia_1920',
       title: 'Edición Sepia 1920',
-      description: 'Papel envejecido de imprenta histórica con tonos sepia y tinta café.',
+      description: 'Pátina envejecida de hemeroteca histórica con tonos café y pergamino.',
       price: 250,
       type: ShopItemType.theme,
       iconName: 'history_edu',
+      data: {'bg': 0xFFEFE8D8, 'ink': 0xFF3D3226, 'accent': 0xFF9E6B38},
     ),
     ShopItem(
       id: 'theme_botanical_salvia',
-      title: 'Edición Salvia & Botánica',
-      description: 'Papel verde salvia natural con acentos botánicos elegantes.',
+      title: 'Salvia & Botánica',
+      description: 'Papel verde salvia natural con acentos botánicos de gran elegancia.',
       price: 350,
       type: ShopItemType.theme,
       iconName: 'park',
+      data: {'bg': 0xFFEEF3EE, 'ink': 0xFF1E3524, 'accent': 0xFF5B8A62},
     ),
     ShopItem(
       id: 'theme_royal_gold',
-      title: 'Papiro Imperial & Tinta Oro',
-      description: 'Edición de lujo con detalles dorados y textura de papiro real.',
+      title: 'Papiro Imperial',
+      description: 'Edición de lujo con toques de orla dorada y textura de papiro selecto.',
       price: 450,
       type: ShopItemType.theme,
       iconName: 'auto_awesome',
+      data: {'bg': 0xFFF9F5EA, 'ink': 0xFF2B261F, 'accent': 0xFFB8860B},
     ),
     ShopItem(
       id: 'theme_dark_ink',
-      title: 'Tinta Carbón Nocturna',
-      description: 'Edición especial de noche con fondo carbón profundo y letras marfil.',
+      title: 'Tinta Nocturna',
+      description: 'Edición de noche con fondo carbón mate profundo y letras marfil.',
       price: 500,
       type: ShopItemType.theme,
       iconName: 'dark_mode',
+      data: {'bg': 0xFF1E2124, 'ink': 0xFFF5F3ED, 'accent': 0xFFE5B54F},
     ),
     ShopItem(
       id: 'theme_cyber_press',
-      title: 'Tinta Neón Cyber-Prensa',
-      description: 'Futurismo editorial con trazos cian y contraste neón.',
+      title: 'Tinta Cyber-Prensa',
+      description: 'Contraste futurista con trazos cian y tipografía de alto impacto.',
       price: 600,
       type: ShopItemType.theme,
       iconName: 'bolt',
+      data: {'bg': 0xFF0F172A, 'ink': 0xFF38BDF8, 'accent': 0xFFA855F7},
     ),
+  ];
 
-    // Font Unlocks
+  static final List<ShopItem> _fonts = [
     ShopItem(
       id: 'font_playfair',
-      title: 'Playfair Display (Editorial)',
-      description: 'Tipografía serif clásica tradicional del periodismo de alta gama.',
+      title: 'Playfair Display',
+      description: 'Clásica serif de titulares nobles y gran prestancia periodística.',
       price: 0,
       type: ShopItemType.font,
       iconName: 'font_download',
     ),
     ShopItem(
       id: 'font_cinzel',
-      title: 'Cinzel (Romana Imperial)',
+      title: 'Cinzel Romana',
       description: 'Inspirada en las inscripciones monumentales del Imperio Romano.',
       price: 250,
       type: ShopItemType.font,
@@ -80,103 +87,75 @@ class ShopScreen extends StatelessWidget {
     ),
     ShopItem(
       id: 'font_lora',
-      title: 'Lora (Poética & Novela)',
-      description: 'Curvas suaves pensadas para una lectura literaria placentera.',
+      title: 'Lora Poética',
+      description: 'Trazos suaves y equilibrados concebidos para la lectura literaria.',
       price: 300,
       type: ShopItemType.font,
       iconName: 'font_download',
     ),
     ShopItem(
       id: 'font_merriweather',
-      title: 'Merriweather (Prensa Tradicional)',
-      description: 'Diseñada específicamente para lectura en pantallas y periódicos.',
+      title: 'Merriweather',
+      description: 'Diseño robusto y nítido para páginas editoriales y columnas densas.',
       price: 350,
       type: ShopItemType.font,
       iconName: 'font_download',
     ),
     ShopItem(
       id: 'font_roboto_slab',
-      title: 'Roboto Slab (Imprenta Vintage)',
-      description: 'Estilo mecánico de imprenta tipográfica del siglo XX.',
+      title: 'Roboto Slab',
+      description: 'Tipografía de bloque inspirada en las máquinas de imprenta del siglo XX.',
       price: 400,
       type: ShopItemType.font,
       iconName: 'font_download',
     ),
+  ];
 
-    // Temáticas
+  static final List<ShopItem> _dossiers = [
     ShopItem(
       id: 'dossier_mitologia',
-      title: 'Temática Mitología Clásica',
-      description: 'Acceso a palabras exclusivas sobre dioses, héroes y leyendas.',
+      title: 'Mitología Clásica',
+      description: 'Panteón griego, héroes homéricos y leyendas de la antigüedad.',
       price: 300,
       type: ShopItemType.dossier,
       iconName: 'fort',
+      assetPath: 'assets/images/dossier_filosofia.png',
     ),
     ShopItem(
       id: 'dossier_filosofia',
-      title: 'Temática Filosofía & Mente',
-      description: 'Crucigramas de gran calibre intelectual sobre el pensamiento humano.',
+      title: 'Filosofía & Mente',
+      description: 'Grandes pensadores, dilemas éticos y corrientes del intelecto.',
       price: 350,
       type: ShopItemType.dossier,
       iconName: 'psychology',
+      assetPath: 'assets/images/dossier_filosofia.png',
     ),
     ShopItem(
       id: 'dossier_ciencia_cuantica',
-      title: 'Temática Ciencia & Física Cuántica',
-      description: 'Términos científicos avanzados de física, química y universo.',
+      title: 'Ciencia & Cosmos',
+      description: 'Física cuántica, astronomía estelar y fórmulas del universo.',
       price: 400,
       type: ShopItemType.dossier,
       iconName: 'science',
+      assetPath: 'assets/images/dossier_ciencia.png',
     ),
     ShopItem(
       id: 'dossier_gastronomia_mundo',
-      title: 'Temática Gastronomía del Mundo',
-      description: 'Sabores, técnicas culinarias e ingredientes de alta cocina.',
+      title: 'Gastronomía & Sabores',
+      description: 'Alta cocina, ingredientes del mundo y técnicas culinarias.',
       price: 300,
       type: ShopItemType.dossier,
       iconName: 'restaurant',
+      assetPath: 'assets/images/dossier_arte.png',
     ),
     ShopItem(
       id: 'dossier_cine_opera',
-      title: 'Temática Cine de Culto & Ópera',
-      description: 'Séptimo arte, escenografía y grandes piezas musicales.',
+      title: 'Cine de Culto & Ópera',
+      description: 'Obras maestras de la cinematografía, escenografía y lírica.',
       price: 350,
       type: ShopItemType.dossier,
       iconName: 'movie',
-    ),
-
-    // Powerups & Mechanical Enhancements
-    ShopItem(
-      id: 'typewriter_sfx',
-      title: 'Sonido Máquina Remington',
-      description: 'Efecto auditivo y háptico vintage al pulsar cada tecla.',
-      price: 200,
-      type: ShopItemType.title,
-      iconName: 'keyboard',
-    ),
-    ShopItem(
-      id: 'lupa_verdad',
-      title: 'Lente del Redactor (Potenciador)',
-      description: 'Revelador instantáneo de 3 letras aleatorias del tablero.',
-      price: 150,
-      type: ShopItemType.title,
-      iconName: 'search',
-    ),
-    ShopItem(
-      id: 'badge_redactor_jefe',
-      title: 'Sello de Redactor Jefe',
-      description: 'Distinción de honor otorgada a los más grandes solucionadores.',
-      price: 200,
-      type: ShopItemType.title,
-      iconName: 'verified',
-    ),
-    ShopItem(
-      id: 'badge_pluma_oro',
-      title: 'Pluma de Oro de la Redacción',
-      description: 'El máximo reconocimiento periodístico para la colección.',
-      price: 600,
-      type: ShopItemType.title,
-      iconName: 'draw',
+      assetPath: 'assets/images/dossier_entretenimiento.png',
     ),
   ];
 
@@ -187,16 +166,19 @@ class ShopScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: EditorialTheme.background,
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: Text(
-          "QUIOSCO & IMPRENTA",
-          style: EditorialTheme.getEditorialFont(
-            fontId: gameState.activeFontId,
+          "EL QUIOSCO EDITORIAL",
+          style: GoogleFonts.playfairDisplay(
             fontSize: 18,
             fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
           ),
         ),
         actions: [
-          // Coins indicator
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             margin: const EdgeInsets.only(right: 16),
@@ -211,8 +193,7 @@ class ShopScreen extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   "${gameState.coins}",
-                  style: EditorialTheme.getEditorialFont(
-                    fontId: gameState.activeFontId,
+                  style: GoogleFonts.playfairDisplay(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: EditorialTheme.textPrimary,
@@ -224,76 +205,94 @@ class ShopScreen extends StatelessWidget {
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Banner
-              Container(
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(vertical: 12.0),
+          children: [
+            // 1. Newspaper Supplement Masthead Banner
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: EditorialTheme.newspaperCardDecoration,
-                child: Row(
+                child: Column(
                   children: [
-                    Container(
-                      width: 52,
-                      height: 52,
-                      decoration: BoxDecoration(
-                        color: EditorialTheme.primary,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Icons.storefront, color: EditorialTheme.surface, size: 30),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "SUPLEMENTO ILUSTRADO",
+                          style: GoogleFonts.inter(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.4,
+                            color: EditorialTheme.accent,
+                          ),
+                        ),
+                        Text(
+                          "QUIOSCO & TALLER",
+                          style: GoogleFonts.inter(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.4,
+                            color: EditorialTheme.textSecondary,
+                          ),
+                        ),
+                        Text(
+                          "EDICIÓN ESPECIAL",
+                          style: GoogleFonts.inter(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.4,
+                            color: EditorialTheme.accent,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "CATÁLOGO DE LA IMPRENTA",
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.2,
-                              color: EditorialTheme.accent,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            "Canjea tus Monedas",
-                            style: EditorialTheme.getEditorialFont(
-                              fontId: gameState.activeFontId,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: EditorialTheme.textPrimary,
-                            ),
-                          ),
-                          Text(
-                            "Desbloquea fuentes tipográficas, temas de papel, compras VIP y monedero.",
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              color: EditorialTheme.textSecondary,
-                            ),
-                          ),
-                        ],
+                    const SizedBox(height: 6),
+                    Container(height: 1.5, color: EditorialTheme.textPrimary),
+                    const SizedBox(height: 8),
+                    Text(
+                      "GACETA DE LA IMPRENTA",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.5,
+                        color: EditorialTheme.textPrimary,
                       ),
                     ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Personaliza tu experiencia con tintas clásicas, fuentes históricas y fondos de honor.",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.inter(
+                        fontSize: 11.5,
+                        color: EditorialTheme.textSecondary,
+                        height: 1.3,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(height: 1.5, color: EditorialTheme.textPrimary),
                   ],
                 ),
               ),
+            ).animate().fadeIn(duration: 300.ms),
 
-              const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
-              // REWARDED ADS BANNER - "Consigue Monedas Gratis"
-              Container(
-                padding: const EdgeInsets.all(14),
+            // 2. Patrocinador Editorial (Free Coins Banner)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 decoration: BoxDecoration(
                   color: EditorialTheme.surface,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: EditorialTheme.accent, width: 1.5),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: EditorialTheme.accent, width: 1.8),
                   boxShadow: [
                     BoxShadow(
-                      color: EditorialTheme.accent.withValues(alpha: 0.1),
+                      color: EditorialTheme.accent.withValues(alpha: 0.12),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
@@ -301,32 +300,39 @@ class ShopScreen extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.stars, color: EditorialTheme.accent, size: 36),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: EditorialTheme.accent.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.stars, color: EditorialTheme.accent, size: 28),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "PATROCINADOR EDITORIAL",
+                            "PATROCINIO DIARIO",
                             style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.1,
                               color: EditorialTheme.accent,
-                              letterSpacing: 1.0,
                             ),
                           ),
                           Text(
-                            "¡Consigue +50 Monedas Gratis!",
+                            "+50 Monedas de la Imprenta",
                             style: GoogleFonts.playfairDisplay(
-                              fontSize: 15,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
                               color: EditorialTheme.textPrimary,
                             ),
                           ),
                           Text(
-                            "Mira un breve anuncio patrocinado de 15 segundos",
-                            style: GoogleFonts.inter(fontSize: 10, color: EditorialTheme.textSecondary),
+                            "Mira un breve patrocinio editorial",
+                            style: GoogleFonts.inter(fontSize: 10.5, color: EditorialTheme.textSecondary),
                           ),
                         ],
                       ),
@@ -334,185 +340,344 @@ class ShopScreen extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () => AdManager.showRewardedAdForCoins(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: EditorialTheme.accent,
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        backgroundColor: EditorialTheme.primary,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                       ),
                       child: Text(
-                        "Ver Video 🎬",
+                        "Reclamar",
                         style: GoogleFonts.inter(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: EditorialTheme.textPrimary,
+                          color: Colors.white,
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
+            ),
 
-              const SizedBox(height: 24),
+            const SizedBox(height: 22),
 
-              // IN-APP PURCHASES & VIP SECTION
-              _buildSectionHeader("COMPRAS DE LA IMPRENTA & VIP", "Paquetes de monedas y suscripción sin anuncios"),
-              const SizedBox(height: 12),
-              ...IapService.storeProducts.map((product) {
-                return _buildIapCard(context, gameState, product);
-              }),
+            // 3. CARRUSEL 1: ESTILOS DE PAPEL & TINTA
+            _buildSectionHeader(
+              sectionNum: "SECCIÓN I",
+              title: "ESTILOS DE PAPEL PRENSA",
+              subtitle: "Variantes de color y textura para la cuadrícula",
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 220,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: _themes.length,
+                separatorBuilder: (ctx, i) => const SizedBox(width: 14),
+                itemBuilder: (ctx, i) {
+                  final item = _themes[i];
+                  return _buildThemeCarouselCard(context, gameState, item);
+                },
+              ),
+            ),
 
-              const SizedBox(height: 24),
+            const SizedBox(height: 26),
 
-              // Section: Themes
-              _buildSectionHeader("ESTILOS DE IMPRENTA Y TINTAS", "Personaliza la apariencia visual"),
-              const SizedBox(height: 12),
-              ..._shopItems.where((i) => i.type == ShopItemType.theme).map((item) {
-                return _buildShopItemCard(context, gameState, item);
-              }),
+            // 4. CARRUSEL 2: TIPOGRAFÍAS DE IMPRENTA
+            _buildSectionHeader(
+              sectionNum: "SECCIÓN II",
+              title: "TIPOGRAFÍAS HISTÓRICAS",
+              subtitle: "Fuentes clásicas aplicadas a todas las palabras del periódico",
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 220,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: _fonts.length,
+                separatorBuilder: (ctx, i) => const SizedBox(width: 14),
+                itemBuilder: (ctx, i) {
+                  final item = _fonts[i];
+                  return _buildFontCarouselCard(context, gameState, item);
+                },
+              ),
+            ),
 
-              const SizedBox(height: 24),
+            const SizedBox(height: 26),
 
-              // Section: Fonts
-              _buildSectionHeader("FUENTES TIPOGRÁFICAS EDITORIALES", "Elige el estilo de letra para tus crucigramas"),
-              const SizedBox(height: 12),
-              ..._shopItems.where((i) => i.type == ShopItemType.font).map((item) {
-                return _buildShopItemCard(context, gameState, item);
-              }),
+            // 5. CARRUSEL 3: DOSSIERS & TEMÁTICAS
+            _buildSectionHeader(
+              sectionNum: "SECCIÓN III",
+              title: "DOSSIERS TEMÁTICOS",
+              subtitle: "Áreas de conocimiento y léxico especializado",
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 210,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: _dossiers.length,
+                separatorBuilder: (ctx, i) => const SizedBox(width: 14),
+                itemBuilder: (ctx, i) {
+                  final item = _dossiers[i];
+                  return _buildDossierCarouselCard(context, gameState, item);
+                },
+              ),
+            ),
 
-              const SizedBox(height: 24),
+            const SizedBox(height: 26),
 
-              // Section: Temáticas
-              _buildSectionHeader("TEMÁTICAS DE EDICIÓN ESPECIAL", "Niveles exclusivos con vocabulario avanzado"),
-              const SizedBox(height: 12),
-              ..._shopItems.where((i) => i.type == ShopItemType.dossier).map((item) {
-                return _buildShopItemCard(context, gameState, item);
-              }),
+            // 6. CARRUSEL 4: CAUDALES & EDICIÓN VIP
+            _buildSectionHeader(
+              sectionNum: "SECCIÓN IV",
+              title: "CAJA DE FONDOS & SUSCRIPCIÓN VIP",
+              subtitle: "Paquetes de monedas y pase de honor 'Redacción de Honor'",
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 220,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: IapService.storeProducts.length,
+                separatorBuilder: (ctx, i) => const SizedBox(width: 14),
+                itemBuilder: (ctx, i) {
+                  final item = IapService.storeProducts[i];
+                  return _buildIapCarouselCard(context, gameState, item);
+                },
+              ),
+            ),
 
-              const SizedBox(height: 24),
-
-              // Section: Badges & Enhancements
-              _buildSectionHeader("POTENCIADORES Y RECONOCIMIENTOS", "Mejoras de imprenta e insignias de honor"),
-              const SizedBox(height: 12),
-              ..._shopItems.where((i) => i.type == ShopItemType.title).map((item) {
-                return _buildShopItemCard(context, gameState, item);
-              }),
-
-              const SizedBox(height: 20),
-            ],
-          ),
+            const SizedBox(height: 28),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title, String subtitle) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: GoogleFonts.playfairDisplay(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
-            color: EditorialTheme.textPrimary,
-          ),
-        ),
-        Text(
-          subtitle,
-          style: GoogleFonts.inter(fontSize: 11, color: EditorialTheme.textSecondary),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildIapCard(BuildContext context, GameStateProvider gameState, IapItem product) {
-    final isVipActive = product.isVipPackage && gameState.hasNoAds;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: product.isVipPackage
-            ? EditorialTheme.primary.withValues(alpha: 0.05)
-            : EditorialTheme.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: product.isVipPackage ? EditorialTheme.accent : EditorialTheme.borderLine,
-          width: product.isVipPackage ? 2 : 1,
-        ),
-      ),
-      child: Row(
+  Widget _buildSectionHeader({
+    required String sectionNum,
+    required String title,
+    required String subtitle,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: product.isVipPackage
-                  ? EditorialTheme.accent.withValues(alpha: 0.2)
-                  : EditorialTheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Icon(
-              product.isVipPackage ? Icons.workspace_premium : Icons.monetization_on,
-              color: product.isVipPackage ? EditorialTheme.accent : EditorialTheme.primary,
-              size: 26,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.title,
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: EditorialTheme.primary,
+                  borderRadius: BorderRadius.circular(3),
+                ),
+                child: Text(
+                  sectionNum,
+                  style: GoogleFonts.inter(
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.1,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
                   style: GoogleFonts.playfairDisplay(
-                    fontSize: 15,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
+                    letterSpacing: 0.8,
                     color: EditorialTheme.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 2),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            subtitle,
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              color: EditorialTheme.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Card for Themes Carousel
+  Widget _buildThemeCarouselCard(
+    BuildContext context,
+    GameStateProvider gameState,
+    ShopItem item,
+  ) {
+    final isUnlocked = gameState.isItemUnlocked(item.id);
+    final isEquipped = gameState.activeThemeId == item.id;
+    final bgVal = item.data?['bg'] as int? ?? 0xFFF7F5EF;
+    final inkVal = item.data?['ink'] as int? ?? 0xFF202124;
+    final accVal = item.data?['accent'] as int? ?? 0xFFD9A63A;
+
+    return Container(
+      width: 250,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: EditorialTheme.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isEquipped ? EditorialTheme.accent : EditorialTheme.borderLine,
+          width: isEquipped ? 2.2 : 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: EditorialTheme.textPrimary.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Theme visual swatch bar
+          Container(
+            height: 38,
+            decoration: BoxDecoration(
+              color: Color(bgVal),
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: EditorialTheme.borderLine),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
                 Text(
-                  product.description,
+                  "EDICIÓN",
                   style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: EditorialTheme.textSecondary,
-                    height: 1.2,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.0,
+                    color: Color(inkVal),
                   ),
+                ),
+                Row(
+                  children: [
+                    Container(width: 10, height: 10, decoration: BoxDecoration(color: Color(inkVal), shape: BoxShape.circle)),
+                    const SizedBox(width: 4),
+                    Container(width: 10, height: 10, decoration: BoxDecoration(color: Color(accVal), shape: BoxShape.circle)),
+                  ],
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          if (isVipActive)
+          const SizedBox(height: 10),
+          Text(
+            item.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: EditorialTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Expanded(
+            child: Text(
+              item.description,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: EditorialTheme.textSecondary,
+                height: 1.25,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Action button
+          if (isEquipped)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: EditorialTheme.success,
-                borderRadius: BorderRadius.circular(4),
+                color: EditorialTheme.accent.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: EditorialTheme.accent),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.check, size: 14, color: EditorialTheme.textPrimary),
+                  const SizedBox(width: 4),
+                  Text(
+                    "EN USO",
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: EditorialTheme.textPrimary,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else if (isUnlocked)
+            ElevatedButton(
+              onPressed: () => gameState.equipTheme(item.id),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: EditorialTheme.primary,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
               ),
               child: Text(
-                "SUSCRITO VIP",
+                "USAR ESTILO",
                 style: GoogleFonts.inter(
-                  fontSize: 10,
+                  fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: EditorialTheme.surface,
+                  color: Colors.white,
+                  letterSpacing: 0.8,
                 ),
               ),
             )
           else
             ElevatedButton(
-              onPressed: () => IapService.processPurchase(context, product),
+              onPressed: () {
+                if (gameState.coins >= item.price) {
+                  gameState.buyShopItem(item.id, item.price);
+                  gameState.equipTheme(item.id);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: EditorialTheme.success,
+                      content: Text("¡Has adquirido ${item.title}!"),
+                    ),
+                  );
+                } else {
+                  _showNeedCoinsSnackBar(context);
+                }
+              },
               style: ElevatedButton.styleFrom(
-                backgroundColor: EditorialTheme.primary,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                backgroundColor: EditorialTheme.accent,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
               ),
               child: Text(
-                product.price,
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 12,
+                "${item.price} 🪙 ADQUIRIR",
+                style: GoogleFonts.inter(
+                  fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: EditorialTheme.surface,
+                  color: EditorialTheme.textPrimary,
+                  letterSpacing: 0.5,
                 ),
               ),
             ),
@@ -521,186 +686,389 @@ class ShopScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildShopItemCard(BuildContext context, GameStateProvider gameState, ShopItem item) {
+  // Card for Typography Carousel
+  Widget _buildFontCarouselCard(
+    BuildContext context,
+    GameStateProvider gameState,
+    ShopItem item,
+  ) {
     final isUnlocked = gameState.isItemUnlocked(item.id);
-    final isEquippedTheme = item.type == ShopItemType.theme && gameState.activeThemeId == item.id;
-    final isEquippedFont = item.type == ShopItemType.font && gameState.activeFontId == item.id;
-    final isEquipped = isEquippedTheme || isEquippedFont;
-
-    IconData iconData = Icons.palette;
-    if (item.iconName == 'history_edu') iconData = Icons.history_edu;
-    if (item.iconName == 'park') iconData = Icons.park;
-    if (item.iconName == 'auto_awesome') iconData = Icons.auto_awesome;
-    if (item.iconName == 'dark_mode') iconData = Icons.dark_mode;
-    if (item.iconName == 'bolt') iconData = Icons.bolt;
-    if (item.iconName == 'font_download') iconData = Icons.font_download;
-    if (item.iconName == 'fort') iconData = Icons.castle;
-    if (item.iconName == 'psychology') iconData = Icons.psychology;
-    if (item.iconName == 'science') iconData = Icons.science;
-    if (item.iconName == 'restaurant') iconData = Icons.restaurant;
-    if (item.iconName == 'movie') iconData = Icons.movie;
-    if (item.iconName == 'keyboard') iconData = Icons.keyboard;
-    if (item.iconName == 'search') iconData = Icons.search;
-    if (item.iconName == 'verified') iconData = Icons.verified;
-    if (item.iconName == 'draw') iconData = Icons.draw;
+    final isEquipped = gameState.activeFontId == item.id;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      width: 250,
       padding: const EdgeInsets.all(14),
-      decoration: EditorialTheme.newspaperCardDecoration,
-      child: Row(
+      decoration: BoxDecoration(
+        color: EditorialTheme.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isEquipped ? EditorialTheme.accent : EditorialTheme.borderLine,
+          width: isEquipped ? 2.2 : 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: EditorialTheme.textPrimary.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Specimen banner
           Container(
-            width: 44,
-            height: 44,
+            height: 46,
             decoration: BoxDecoration(
-              color: isUnlocked ? EditorialTheme.primary.withValues(alpha: 0.1) : EditorialTheme.background,
-              borderRadius: BorderRadius.circular(6),
+              color: EditorialTheme.background,
+              borderRadius: BorderRadius.circular(5),
               border: Border.all(color: EditorialTheme.borderLine),
             ),
-            child: Icon(
-              iconData,
-              color: isUnlocked ? EditorialTheme.primary : EditorialTheme.textSecondary,
-              size: 24,
+            alignment: Alignment.center,
+            child: Text(
+              "Aa Bb Gg 1928",
+              style: EditorialTheme.getEditorialFont(
+                fontId: item.id,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: EditorialTheme.textPrimary,
+              ),
             ),
           ),
-          const SizedBox(width: 12),
-
+          const SizedBox(height: 8),
+          Text(
+            item.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: EditorialTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 3),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  style: item.type == ShopItemType.font
-                      ? EditorialTheme.getEditorialFont(
-                          fontId: item.id,
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        )
-                      : GoogleFonts.playfairDisplay(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: EditorialTheme.textPrimary,
-                        ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  item.description,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: EditorialTheme.textSecondary,
-                    height: 1.2,
-                  ),
-                ),
-              ],
+            child: Text(
+              item.description,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: EditorialTheme.textSecondary,
+                height: 1.25,
+              ),
             ),
           ),
-
-          const SizedBox(width: 8),
-
-          // Action Button (Buy / Equip / Equipped)
-          if (item.type == ShopItemType.theme || item.type == ShopItemType.font) ...[
-            if (isEquipped)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: EditorialTheme.success,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  "ACTIVO",
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: EditorialTheme.surface,
+          const SizedBox(height: 8),
+          if (isEquipped)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: EditorialTheme.accent.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: EditorialTheme.accent),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.check, size: 14, color: EditorialTheme.textPrimary),
+                  const SizedBox(width: 4),
+                  Text(
+                    "TIPOGRAFÍA ACTIVA",
+                    style: GoogleFonts.inter(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.bold,
+                      color: EditorialTheme.textPrimary,
+                      letterSpacing: 0.8,
+                    ),
                   ),
+                ],
+              ),
+            )
+          else if (isUnlocked)
+            ElevatedButton(
+              onPressed: () => gameState.equipFont(item.id),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: EditorialTheme.primary,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+              ),
+              child: Text(
+                "ACTIVAR FUENTE",
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  letterSpacing: 0.8,
                 ),
-              )
-            else if (isUnlocked)
-              OutlinedButton(
-                onPressed: () {
-                  if (item.type == ShopItemType.theme) {
-                    gameState.equipTheme(item.id);
-                  } else {
-                    gameState.equipFont(item.id);
-                  }
-                },
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  side: const BorderSide(color: EditorialTheme.primary),
+              ),
+            )
+          else
+            ElevatedButton(
+              onPressed: () {
+                if (gameState.coins >= item.price) {
+                  gameState.buyShopItem(item.id, item.price);
+                  gameState.equipFont(item.id);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: EditorialTheme.success,
+                      content: Text("¡Tipografía ${item.title} adquirida!"),
+                    ),
+                  );
+                } else {
+                  _showNeedCoinsSnackBar(context);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: EditorialTheme.accent,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+              ),
+              child: Text(
+                "${item.price} 🪙 ADQUIRIR",
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: EditorialTheme.textPrimary,
+                  letterSpacing: 0.5,
                 ),
-                child: Text(
-                  "Usar",
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: EditorialTheme.primary,
-                  ),
-                ),
-              )
-            else
-              _buildBuyButton(context, gameState, item),
-          ] else ...[
-            if (isUnlocked)
-              const Icon(Icons.check_circle, color: EditorialTheme.success, size: 28)
-            else
-              _buildBuyButton(context, gameState, item),
-          ],
+              ),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildBuyButton(BuildContext context, GameStateProvider gameState, ShopItem item) {
-    final canAfford = gameState.coins >= item.price;
+  // Card for Dossiers Carousel
+  Widget _buildDossierCarouselCard(
+    BuildContext context,
+    GameStateProvider gameState,
+    ShopItem item,
+  ) {
+    final isUnlocked = gameState.isItemUnlocked(item.id);
 
-    return ElevatedButton(
-      onPressed: canAfford
-          ? () {
-              if (gameState.buyShopItem(item.id, item.price)) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    backgroundColor: EditorialTheme.success,
-                    content: Text(
-                      "¡Felicidades! Has desbloqueado '${item.title}'",
-                      style: GoogleFonts.inter(color: EditorialTheme.surface),
-                    ),
-                  ),
-                );
-              }
-            }
-          : () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  backgroundColor: EditorialTheme.error,
-                  content: Text(
-                    "Necesitas ${item.price - gameState.coins} monedas más.",
-                    style: GoogleFonts.inter(color: EditorialTheme.surface),
+    return Container(
+      width: 240,
+      padding: const EdgeInsets.all(14),
+      decoration: EditorialTheme.newspaperCardDecoration,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: EditorialTheme.primary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.menu_book, color: EditorialTheme.primary, size: 20),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  item.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: EditorialTheme.textPrimary,
                   ),
                 ),
-              );
-            },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: canAfford ? EditorialTheme.primary : EditorialTheme.borderLine,
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.monetization_on, color: EditorialTheme.accent, size: 14),
-          const SizedBox(width: 4),
-          Text(
-            "${item.price}",
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: canAfford ? EditorialTheme.surface : EditorialTheme.textSecondary,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: Text(
+              item.description,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: EditorialTheme.textSecondary,
+                height: 1.3,
+              ),
             ),
           ),
+          const SizedBox(height: 8),
+          if (isUnlocked)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 7),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: EditorialTheme.success.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Text(
+                "✓ DESBLOQUEADO",
+                style: GoogleFonts.inter(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.bold,
+                  color: EditorialTheme.success,
+                  letterSpacing: 0.8,
+                ),
+              ),
+            )
+          else
+            ElevatedButton(
+              onPressed: () {
+                if (gameState.coins >= item.price) {
+                  gameState.buyShopItem(item.id, item.price);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: EditorialTheme.success,
+                      content: Text("¡Dossier ${item.title} desbloqueado!"),
+                    ),
+                  );
+                } else {
+                  _showNeedCoinsSnackBar(context);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: EditorialTheme.primary,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+              ),
+              child: Text(
+                "${item.price} 🪙 DESBLOQUEAR",
+                style: GoogleFonts.inter(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
         ],
+      ),
+    );
+  }
+
+  // Card for IAP & VIP Carousel
+  Widget _buildIapCarouselCard(
+    BuildContext context,
+    GameStateProvider gameState,
+    IapItem item,
+  ) {
+    final isVip = item.isVipPackage;
+    final isSubscribed = gameState.hasNoAds && isVip;
+
+    return Container(
+      width: 250,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: EditorialTheme.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isVip ? EditorialTheme.accent : EditorialTheme.borderLine,
+          width: isVip ? 2.0 : 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (isVip ? EditorialTheme.accent : EditorialTheme.textPrimary).withValues(alpha: 0.08),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(
+                isVip ? Icons.workspace_premium : Icons.monetization_on,
+                color: isVip ? EditorialTheme.accent : EditorialTheme.primary,
+                size: 22,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  isVip ? "MEMBRESÍA DE HONOR" : "FONDO MONETARIO",
+                  style: GoogleFonts.inter(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.0,
+                    color: isVip ? EditorialTheme.accent : EditorialTheme.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            item.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: EditorialTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Expanded(
+            child: Text(
+              item.description,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.inter(
+                fontSize: 10.5,
+                color: EditorialTheme.textSecondary,
+                height: 1.25,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          if (isSubscribed)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: EditorialTheme.accent.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Text(
+                "✓ VIP ACTIVO",
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: EditorialTheme.textPrimary,
+                  letterSpacing: 0.8,
+                ),
+              ),
+            )
+          else
+            ElevatedButton(
+              onPressed: () => IapService.processPurchase(context, item),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isVip ? EditorialTheme.accent : EditorialTheme.primary,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+              ),
+              child: Text(
+                item.price,
+                style: GoogleFonts.inter(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.bold,
+                  color: isVip ? EditorialTheme.textPrimary : Colors.white,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  static void _showNeedCoinsSnackBar(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        backgroundColor: EditorialTheme.error,
+        content: Text("No tienes suficientes Monedas. ¡Resuelve crucigramas o mira un patrocinio!"),
       ),
     );
   }

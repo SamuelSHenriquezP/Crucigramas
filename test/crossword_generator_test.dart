@@ -33,6 +33,20 @@ void main() {
       expect(board.grid[0].length, equals(board.cols));
     });
 
+    test('CrosswordGenerator generates a large board with advanced difficulty', () async {
+      final board = await CrosswordGenerator.generateBoard(
+        title: "Edición Avanzada Grande",
+        category: "Todos",
+        targetWordsCount: 12,
+        difficultyFilter: "avanzado",
+      );
+
+      expect(board, isNotNull);
+      expect(board.placedWords.length, greaterThanOrEqualTo(8));
+      expect(board.rows, greaterThan(4));
+      expect(board.cols, greaterThan(4));
+    });
+
     test('CrosswordBoard calculates completion percentage accurately', () async {
       final board = await CrosswordGenerator.generateBoard(
         title: "Prueba de Porcentaje",
