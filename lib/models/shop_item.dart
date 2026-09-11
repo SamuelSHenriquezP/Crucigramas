@@ -1,4 +1,4 @@
-enum ShopItemType { theme, font, dossier, title }
+enum ShopItemType { theme, font, dossier, title, quill }
 
 class ShopItem {
   final String id;

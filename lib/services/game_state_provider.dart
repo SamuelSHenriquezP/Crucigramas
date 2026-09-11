@@ -65,9 +65,10 @@ class GameStateProvider with ChangeNotifier {
   }
 
   bool _hasNoAds = false;
-  Set<String> _unlockedShopItems = {'default_theme', 'font_playfair'};
+  Set<String> _unlockedShopItems = {'default_theme', 'font_playfair', 'title_cronista'};
   String _activeThemeId = 'default_theme';
   String _activeFontId = 'font_playfair';
+  String _activeTitleId = 'title_cronista';
 
   // Draft Auto-Save State
   bool _hasSavedDraft = false;
@@ -79,6 +80,7 @@ class GameStateProvider with ChangeNotifier {
   Set<String> get unlockedShopItems => _unlockedShopItems;
   String get activeThemeId => _activeThemeId;
   String get activeFontId => _activeFontId;
+  String get activeTitleId => _activeTitleId;
   bool get hasNoAds => _hasNoAds;
   bool get hasSavedDraft => _hasSavedDraft;
   String get draftTitle => _draftTitle.isNotEmpty ? _draftTitle : "Edición en Borrador";
@@ -91,6 +93,7 @@ class GameStateProvider with ChangeNotifier {
       _completedLevelsCount = prefs.getInt('completed_levels') ?? 0;
       _activeThemeId = prefs.getString('active_theme') ?? 'default_theme';
       _activeFontId = prefs.getString('active_font') ?? 'font_playfair';
+      _activeTitleId = prefs.getString('active_title') ?? 'title_cronista';
       _lastDailyCompletedDate = prefs.getString('last_daily_date') ?? '';
       _hasNoAds = prefs.getBool('has_no_ads') ?? false;
 
@@ -101,7 +104,7 @@ class GameStateProvider with ChangeNotifier {
       _draftElapsedSeconds = prefs.getInt('draft_elapsed') ?? 0;
       _draftGridState = prefs.getStringList('draft_grid_state') ?? [];
 
-      final unlockedList = prefs.getStringList('unlocked_shop') ?? ['default_theme', 'font_playfair'];
+      final unlockedList = prefs.getStringList('unlocked_shop') ?? ['default_theme', 'font_playfair', 'title_cronista'];
       _unlockedShopItems = unlockedList.toSet();
       
       final solvedList = prefs.getStringList('solved_words') ?? [];
@@ -118,6 +121,7 @@ class GameStateProvider with ChangeNotifier {
       await prefs.setInt('completed_levels', _completedLevelsCount);
       await prefs.setString('active_theme', _activeThemeId);
       await prefs.setString('active_font', _activeFontId);
+      await prefs.setString('active_title', _activeTitleId);
       await prefs.setString('last_daily_date', _lastDailyCompletedDate);
       await prefs.setBool('has_no_ads', _hasNoAds);
 
@@ -231,6 +235,14 @@ class GameStateProvider with ChangeNotifier {
   void equipFont(String fontId) {
     if (isItemUnlocked(fontId)) {
       _activeFontId = fontId;
+      _saveStateToPrefs();
+      notifyListeners();
+    }
+  }
+
+  void equipTitle(String titleId) {
+    if (isItemUnlocked(titleId)) {
+      _activeTitleId = titleId;
       _saveStateToPrefs();
       notifyListeners();
     }

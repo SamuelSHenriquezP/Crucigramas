@@ -115,6 +115,62 @@ class EditorialTheme {
           color: textColor,
           letterSpacing: letterSpacing,
         );
+      case 'font_eb_garamond':
+        return GoogleFonts.ebGaramond(
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: textColor,
+          letterSpacing: letterSpacing,
+        );
+      case 'font_cormorant':
+        return GoogleFonts.cormorantGaramond(
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: textColor,
+          letterSpacing: letterSpacing,
+        );
+      case 'font_baskerville':
+        return GoogleFonts.libreBaskerville(
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: textColor,
+          letterSpacing: letterSpacing,
+        );
+      case 'font_bodoni':
+        return GoogleFonts.bodoniModa(
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: textColor,
+          letterSpacing: letterSpacing,
+        );
+      case 'font_courier':
+        return GoogleFonts.courierPrime(
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: textColor,
+          letterSpacing: letterSpacing,
+        );
+      case 'font_space_mono':
+        return GoogleFonts.spaceMono(
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: textColor,
+          letterSpacing: letterSpacing,
+        );
+      case 'font_alegreya':
+        return GoogleFonts.alegreya(
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: textColor,
+          letterSpacing: letterSpacing,
+        );
+      case 'font_spectral':
+        return GoogleFonts.spectral(
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: textColor,
+          letterSpacing: letterSpacing,
+        );
       case 'font_playfair':
       default:
         return GoogleFonts.playfairDisplay(

@@ -42,7 +42,40 @@ class HomeScreen extends StatelessWidget {
                           subtitle: "Revista Editorial de Intelecto",
                         ),
 
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 8),
+
+                        // Credencial de Prensa del Jugador (Título Activo de la Tienda)
+                        Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: EditorialTheme.accent.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: EditorialTheme.accent.withValues(alpha: 0.5),
+                                width: 1.0,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.workspace_premium, size: 14, color: Color(0xFFB45309)),
+                                const SizedBox(width: 5),
+                                Text(
+                                  _getTitleLabel(gameState.activeTitleId).toUpperCase(),
+                                  style: GoogleFonts.inter(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 1.0,
+                                    color: const Color(0xFF78350F),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
 
               // 2. Centered Player Stats Bar (Coins, Solved Words, Streak)
               Container(
@@ -780,5 +813,31 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getTitleLabel(String titleId) {
+    switch (titleId) {
+      case 'title_corresponsal':
+        return 'Corresponsal Especial';
+      case 'title_critico':
+        return 'Crítico Literario';
+      case 'title_hemeroteca':
+        return 'Investigador de Hemeroteca';
+      case 'title_columnista':
+        return 'Columnista Titular';
+      case 'title_maestro':
+        return 'Maestro de la Lengua';
+      case 'title_redactor_jefe':
+        return 'Redactor Jefe';
+      case 'title_pulitzer':
+        return 'Premio Pulitzer de Intelecto';
+      case 'title_academico':
+        return 'Académico de Honor';
+      case 'title_escriba_supremo':
+        return 'Escriba Supremo del Imperio';
+      case 'title_cronista':
+      default:
+        return 'Cronista Aprendiz';
+    }
   }
 }
