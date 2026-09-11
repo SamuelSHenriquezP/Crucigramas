@@ -179,7 +179,22 @@ class _ClueDockWidgetState extends State<ClueDockWidget> {
               setState(() => _isExpanded = !_isExpanded);
             },
             child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
+              duration: const Duration(milliseconds: 220),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0.04, 0.0),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                    )),
+                    child: child,
+                  ),
+                );
+              },
               child: Text(
                 clueText,
                 key: ValueKey("clue_${focusedWord?.number}_${focusedWord?.isAcross}"),

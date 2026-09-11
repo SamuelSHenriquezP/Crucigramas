@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../services/game_state_provider.dart';
@@ -18,7 +19,7 @@ class EditorialKeyboard extends StatelessWidget {
     final gameState = Provider.of<GameStateProvider>(context, listen: false);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 6.0),
+      padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 6.0),
       decoration: const BoxDecoration(
         color: EditorialTheme.background,
         border: Border(
@@ -38,54 +39,17 @@ class EditorialKeyboard extends StatelessWidget {
                   flex: isDel ? 2 : 1,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          if (isDel) {
-                            gameState.onBackspace();
-                          } else {
-                            gameState.onKeyInput(key);
-                          }
-                        },
-                        borderRadius: BorderRadius.circular(5.0),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 100),
-                          height: 44,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: isDel ? EditorialTheme.primary : EditorialTheme.surface,
-                            borderRadius: BorderRadius.circular(5.0),
-                            border: Border.all(
-                              color: isDel
-                                  ? EditorialTheme.primary
-                                  : EditorialTheme.borderLine,
-                              width: 1.2,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: EditorialTheme.textPrimary.withValues(alpha: 0.05),
-                                blurRadius: 2,
-                                offset: const Offset(0, 1),
-                              ),
-                            ],
-                          ),
-                          child: isDel
-                              ? const Icon(
-                                  Icons.backspace_outlined,
-                                  color: EditorialTheme.surface,
-                                  size: 18,
-                                )
-                              : Text(
-                                  key,
-                                  style: GoogleFonts.playfairDisplay(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: EditorialTheme.textPrimary,
-                                  ),
-                                ),
-                        ),
-                      ),
+                    child: _TactileKeyButton(
+                      label: key,
+                      isDel: isDel,
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        if (isDel) {
+                          gameState.onBackspace();
+                        } else {
+                          gameState.onKeyInput(key);
+                        }
+                      },
                     ),
                   ),
                 );
@@ -93,6 +57,84 @@ class EditorialKeyboard extends StatelessWidget {
             ),
           );
         }).toList(),
+      ),
+    );
+  }
+}
+
+class _TactileKeyButton extends StatefulWidget {
+  final String label;
+  final bool isDel;
+  final VoidCallback onTap;
+
+  const _TactileKeyButton({
+    required this.label,
+    required this.isDel,
+    required this.onTap,
+  });
+
+  @override
+  State<_TactileKeyButton> createState() => _TactileKeyButtonState();
+}
+
+class _TactileKeyButtonState extends State<_TactileKeyButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDel = widget.isDel;
+
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        widget.onTap();
+      },
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.90 : 1.0,
+        duration: const Duration(milliseconds: 70),
+        curve: Curves.easeOutCubic,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 100),
+          height: 44,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isDel
+                ? (_isPressed ? const Color(0xFF0F323E) : EditorialTheme.primary)
+                : (_isPressed ? const Color(0xFFEDE8DD) : Colors.white),
+            borderRadius: BorderRadius.circular(6.0),
+            border: Border.all(
+              color: isDel
+                  ? EditorialTheme.primary
+                  : const Color(0xFFD4CEBF),
+              width: 1.1,
+            ),
+            boxShadow: _isPressed
+                ? []
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 1.5,
+                      offset: const Offset(0, 1.5),
+                    ),
+                  ],
+          ),
+          child: isDel
+              ? const Icon(
+                  Icons.backspace_outlined,
+                  color: EditorialTheme.surface,
+                  size: 19,
+                )
+              : Text(
+                  widget.label,
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 16.5,
+                    fontWeight: FontWeight.bold,
+                    color: EditorialTheme.textPrimary,
+                  ),
+                ),
+        ),
       ),
     );
   }

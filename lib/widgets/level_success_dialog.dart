@@ -92,14 +92,55 @@ class _LevelSuccessDialogState extends State<LevelSuccessDialog> {
 
                 const SizedBox(height: 16),
 
-                // Main Trophy / Quill Icon
-                const Icon(
-                  Icons.verified,
-                  size: 64,
-                  color: EditorialTheme.primary,
-                ).animate().scale(delay: 200.ms, duration: 500.ms),
+                // Radiant Trophy Badge with Sunburst Glow
+                Center(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: EditorialTheme.accent.withValues(alpha: 0.18),
+                        ),
+                      ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
+                            begin: const Offset(0.9, 0.9),
+                            end: const Offset(1.25, 1.25),
+                            duration: 1200.ms,
+                          ),
+                      Container(
+                        width: 66,
+                        height: 66,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFD97706).withValues(alpha: 0.45),
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.emoji_events_rounded,
+                          size: 38,
+                          color: Colors.white,
+                        ),
+                      ).animate().scale(
+                            duration: 600.ms,
+                            curve: Curves.elasticOut,
+                          ),
+                    ],
+                  ),
+                ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
                 Text(
                   "Crucigrama Resuelto",
@@ -125,27 +166,47 @@ class _LevelSuccessDialogState extends State<LevelSuccessDialog> {
 
                 const SizedBox(height: 20),
 
-                // Reward Banner
+                // Reward Banner with Animated Progressive Counter
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   decoration: BoxDecoration(
                     color: EditorialTheme.background,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: EditorialTheme.borderLine, width: 1.5),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: EditorialTheme.accent, width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: EditorialTheme.accent.withValues(alpha: 0.12),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.monetization_on, color: EditorialTheme.accent, size: 28),
+                      const Icon(Icons.monetization_on, color: EditorialTheme.accent, size: 28)
+                          .animate(onPlay: (c) => c.repeat(reverse: true))
+                          .scale(
+                            begin: const Offset(0.95, 0.95),
+                            end: const Offset(1.15, 1.15),
+                            duration: 500.ms,
+                          ),
                       const SizedBox(width: 8),
-                      Text(
-                        "+${widget.coinsEarned} Monedas de Oro",
-                        style: EditorialTheme.getEditorialFont(
-                          fontId: activeFontId,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: EditorialTheme.primary,
-                        ),
+                      TweenAnimationBuilder<int>(
+                        tween: IntTween(begin: 0, end: widget.coinsEarned),
+                        duration: const Duration(milliseconds: 900),
+                        curve: Curves.easeOutCubic,
+                        builder: (context, val, _) {
+                          return Text(
+                            "+$val Monedas de Oro",
+                            style: EditorialTheme.getEditorialFont(
+                              fontId: activeFontId,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: EditorialTheme.primary,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

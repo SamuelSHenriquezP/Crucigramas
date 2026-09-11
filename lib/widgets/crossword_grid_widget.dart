@@ -65,22 +65,36 @@ class _CrosswordGridWidgetState extends State<CrosswordGridWidget> {
         // Interactive Zoomable Container with strict boundary constraints
         InteractiveViewer(
           transformationController: _transformationController,
-          boundaryMargin: const EdgeInsets.all(16.0),
-          minScale: 0.85,
-          maxScale: 3.0,
-          clipBehavior: Clip.hardEdge,
+          boundaryMargin: const EdgeInsets.all(20.0),
+          minScale: 0.80,
+          maxScale: 3.5,
+          clipBehavior: Clip.none,
           child: AspectRatio(
             aspectRatio: widget.board.cols / widget.board.rows,
             child: Container(
-              padding: const EdgeInsets.all(3.0),
-              color: Colors.transparent,
+              padding: const EdgeInsets.all(6.0),
+              decoration: BoxDecoration(
+                color: Colors.white, // Fondo blanco limpio y nítido para el tablero
+                borderRadius: BorderRadius.circular(10.0),
+                border: Border.all(
+                  color: const Color(0xFFE5E0D3),
+                  width: 1.2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF174A5B).withValues(alpha: 0.07),
+                    blurRadius: 14,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
               child: GridView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: widget.board.cols,
                   childAspectRatio: 1.0,
-                  crossAxisSpacing: 1.5,
-                  mainAxisSpacing: 1.5,
+                  crossAxisSpacing: 2.0,
+                  mainAxisSpacing: 2.0,
                 ),
                 itemCount: widget.board.rows * widget.board.cols,
                 itemBuilder: (context, index) {
@@ -88,25 +102,29 @@ class _CrosswordGridWidgetState extends State<CrosswordGridWidget> {
                   final c = index % widget.board.cols;
                   final cell = widget.board.grid[r][c];
 
-                  // Transparent cell for blocked positions
+                  // Las posiciones bloqueadas son 100% transparentes e invisibles (cero cuadros negros)
                   if (cell.isBlack) {
                     return const SizedBox.shrink();
                   }
 
                   final isFocused = (gameState.focusedRow == r && gameState.focusedCol == c);
                   final isInFocusedWord = focusedWord != null && focusedWord.containsCell(r, c);
+                  final isCelebratedCell = gameState.lastCompletedWordCelebration != null &&
+                      gameState.lastCompletedWordCelebration!.containsCell(r, c);
 
-                  // Colors palette for cells (Authentic newsprint)
+                  // Paleta de colores para celdas estilo ficha moderna
                   Color bgColor = Colors.white;
-                  if (isFocused) {
-                    bgColor = const Color(0xFFFDE68A); // Warm amber newsprint highlighter
+                  if (cell.isError) {
+                    bgColor = const Color(0xFFFEE2E2); // Tinte rojo error
+                  } else if (isFocused) {
+                    bgColor = const Color(0xFFFEF3C7); // Ámbar dorado cálido enfocado
                   } else if (isInFocusedWord) {
-                    bgColor = const Color(0xFFE6EEF2); // Soft petroleum ink tint
-                  } else if (cell.isError) {
-                    bgColor = const Color(0xFFFEE2E2); // Soft terracotta tint
+                    bgColor = const Color(0xFFEBF3F5); // Suave tinte azul petróleo para la palabra activa
+                  } else if (cell.isRevealed) {
+                    bgColor = const Color(0xFFFEF9C3); // Tinte dorado de pista revelada
                   }
 
-                  Color textColor = const Color(0xFF1A1D20); // Carbon ink
+                  Color textColor = const Color(0xFF1E2124); // Tinta carbón de alta legibilidad
                   if (cell.isError) {
                     textColor = EditorialTheme.error;
                   } else if (cell.isRevealed) {
@@ -114,30 +132,41 @@ class _CrosswordGridWidgetState extends State<CrosswordGridWidget> {
                   }
 
                   Widget cellContent = AnimatedContainer(
-                    duration: const Duration(milliseconds: 120),
+                    duration: const Duration(milliseconds: 140),
+                    curve: Curves.easeOutCubic,
                     decoration: BoxDecoration(
                       color: bgColor,
-                      borderRadius: BorderRadius.circular(1.5),
+                      borderRadius: BorderRadius.circular(3.5),
                       border: Border.all(
                         color: isFocused
-                            ? const Color(0xFFB45309) // Deep amber border
+                            ? const Color(0xFFB45309) // Borde ámbar enfocado
                             : (isInFocusedWord
-                                ? EditorialTheme.primary
-                                : const Color(0xFF948F82)), // Fine newsprint rule
-                        width: isFocused ? 2.0 : (isInFocusedWord ? 1.2 : 0.8),
+                                ? EditorialTheme.primary // Borde palabra activa
+                                : const Color(0xFFCBC6B8)), // Borde nítido ficha blanca
+                        width: isFocused ? 2.2 : (isInFocusedWord ? 1.4 : 0.9),
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isFocused
+                              ? const Color(0xFFB45309).withValues(alpha: 0.25)
+                              : (isInFocusedWord
+                                  ? EditorialTheme.primary.withValues(alpha: 0.12)
+                                  : Colors.black.withValues(alpha: 0.04)),
+                          blurRadius: isFocused ? 4.0 : 1.5,
+                          offset: Offset(0, isFocused ? 2.0 : 1.0),
+                        ),
+                      ],
                     ),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         final h = constraints.maxHeight;
-                        // Proportional font sizing for crisp newspaper legibility
                         final numFontSize = (h * 0.26).clamp(7.0, 11.5);
                         final letterFontSize = (h * 0.60).clamp(13.0, 26.0);
 
                         return Stack(
                           clipBehavior: Clip.none,
                           children: [
-                            // 1. Clue Number (Crisp, sharp top-left corner)
+                            // 1. Número de pista en esquina superior izquierda
                             if (cell.number != null)
                               Positioned(
                                 top: 1.5,
@@ -148,24 +177,24 @@ class _CrosswordGridWidgetState extends State<CrosswordGridWidget> {
                                     fontSize: numFontSize,
                                     fontWeight: FontWeight.w800,
                                     height: 1.0,
-                                    color: const Color(0xFF222629),
+                                    color: const Color(0xFF2B2F33),
                                   ),
                                 ),
                               ),
 
-                            // 2. Direction Indicator Arrow (Top-Right of focused cell)
+                            // 2. Indicador de dirección en esquina superior derecha de celda enfocada
                             if (isFocused)
                               Positioned(
                                 top: 2.0,
                                 right: 2.5,
                                 child: Icon(
-                                  gameState.isAcrossFocus ? Icons.arrow_forward : Icons.arrow_downward,
-                                  size: numFontSize * 0.95,
-                                  color: const Color(0xFF78350F),
+                                  gameState.isAcrossFocus ? Icons.arrow_forward_rounded : Icons.arrow_downward_rounded,
+                                  size: numFontSize * 1.0,
+                                  color: const Color(0xFF92400E),
                                 ),
                               ),
 
-                            // 3. Main Letter Display (Optically centered with slight top offset if number exists)
+                            // 3. Letra con animación elástica al teclear
                             Positioned.fill(
                               child: Padding(
                                 padding: EdgeInsets.only(
@@ -185,9 +214,11 @@ class _CrosswordGridWidgetState extends State<CrosswordGridWidget> {
                                         color: textColor,
                                       ),
                                     ).animate(
-                                      key: ValueKey("anim_${r}_${c}_${cell.userChar}"),
+                                      key: ValueKey("anim_pop_${r}_${c}_${cell.userChar}"),
                                     ).scale(
-                                      duration: 120.ms,
+                                      begin: const Offset(0.4, 0.4),
+                                      end: const Offset(1.0, 1.0),
+                                      duration: 180.ms,
                                       curve: Curves.easeOutBack,
                                     ),
                                   ),
@@ -200,7 +231,27 @@ class _CrosswordGridWidgetState extends State<CrosswordGridWidget> {
                     ),
                   );
 
-                  // Shimmer flare for revealed letters
+                  // Animación de celebración al completar una palabra
+                  if (isCelebratedCell) {
+                    cellContent = cellContent.animate(
+                      key: ValueKey("celeb_${r}_${c}_${gameState.wordCelebrationTick}"),
+                    ).scale(
+                      begin: const Offset(1.0, 1.0),
+                      end: const Offset(1.10, 1.10),
+                      duration: 180.ms,
+                      curve: Curves.easeInOut,
+                    ).then().scale(
+                      begin: const Offset(1.10, 1.10),
+                      end: const Offset(1.0, 1.0),
+                      duration: 180.ms,
+                      curve: Curves.easeInOut,
+                    ).shimmer(
+                      duration: 650.ms,
+                      color: const Color(0xFFF59E0B).withValues(alpha: 0.7),
+                    );
+                  }
+
+                  // Destello radiante para letras reveladas por comodín
                   if (cell.isRevealed) {
                     cellContent = cellContent.animate().shimmer(
                       duration: 700.ms,

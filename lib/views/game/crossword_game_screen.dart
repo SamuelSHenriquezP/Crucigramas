@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/crossword_board.dart';
@@ -22,11 +24,19 @@ class CrosswordGameScreen extends StatefulWidget {
 class _CrosswordGameScreenState extends State<CrosswordGameScreen> {
   bool _dialogShown = false;
   int _lastSeenCelebrationTick = 0;
+  String? _celebratingWord;
+  Timer? _celebrationTimer;
 
   @override
   void initState() {
     super.initState();
     _checkFirstTimeTutorial();
+  }
+
+  @override
+  void dispose() {
+    _celebrationTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _checkFirstTimeTutorial() async {
@@ -51,33 +61,17 @@ class _CrosswordGameScreenState extends State<CrosswordGameScreen> {
       if (completedWord != null && completedWord.isNotEmpty && !gameState.isLevelComplete) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context).clearSnackBars();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              duration: const Duration(milliseconds: 1800),
-              backgroundColor: const Color(0xFF1B4332),
-              behavior: SnackBarBehavior.floating,
-              margin: const EdgeInsets.only(bottom: 230, left: 36, right: 36),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              content: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.check_circle, color: Color(0xFF74C69D), size: 16),
-                  const SizedBox(width: 8),
-                  Text(
-                    "¡Palabra resuelta: $completedWord!",
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
+          _celebrationTimer?.cancel();
+          setState(() {
+            _celebratingWord = completedWord;
+          });
+          _celebrationTimer = Timer(const Duration(milliseconds: 2200), () {
+            if (mounted) {
+              setState(() {
+                _celebratingWord = null;
+              });
+            }
+          });
         });
       }
     }
@@ -302,8 +296,58 @@ class _CrosswordGameScreenState extends State<CrosswordGameScreen> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Center(
-                        child: CrosswordGridWidget(board: gameState.currentBoard!),
+                      child: Stack(
+                        alignment: Alignment.topCenter,
+                        children: [
+                          Center(
+                            child: CrosswordGridWidget(board: gameState.currentBoard!),
+                          ),
+                          // Notificación gráfica flotante al resolver una palabra
+                          if (_celebratingWord != null)
+                            Positioned(
+                              top: 6,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1B4332), // Verde bosque editorial profundo
+                                  borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(color: const Color(0xFF52B788), width: 1.4),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.22),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.stars_rounded, color: Color(0xFFF59E0B), size: 20)
+                                        .animate(onPlay: (c) => c.repeat(reverse: true))
+                                        .scale(
+                                          begin: const Offset(0.9, 0.9),
+                                          end: const Offset(1.15, 1.15),
+                                          duration: 400.ms,
+                                        ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      "¡Palabra descubierta: $_celebratingWord!",
+                                      style: GoogleFonts.inter(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                        letterSpacing: 0.3,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ).animate().scale(
+                                duration: 250.ms,
+                                curve: Curves.easeOutBack,
+                              ).fadeIn(duration: 200.ms),
+                            ),
+                        ],
                       ),
                     ),
                   ),
