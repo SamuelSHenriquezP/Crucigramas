@@ -8,6 +8,7 @@ class EditorialTheme {
   static const Color textPrimary = Color(0xFF202124); // Negro carbón
   static const Color textSecondary = Color(0xFF5F6368); // Gris medio
   static const Color primary = Color(0xFF174A5B);     // Azul petróleo profundo
+  static const Color secondary = Color(0xFF2D6A4F);   // Verde editorial de honor
   static const Color accent = Color(0xFFD9A63A);      // Mostaza elegante
   static const Color success = Color(0xFF719579);     // Verde salvia
   static const Color error = Color(0xFFC56D5A);       // Terracota

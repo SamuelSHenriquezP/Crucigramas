@@ -65,4 +65,28 @@ class CrosswordBoard {
     final preferred = matches.where((w) => w.isAcross == preferAcross);
     return preferred.isNotEmpty ? preferred.first : matches.first;
   }
+
+  Map<String, dynamic> toJson() => {
+    'title': title,
+    'category': category,
+    'rows': rows,
+    'cols': cols,
+    'grid': grid.map((row) => row.map((cell) => cell.toJson()).toList()).toList(),
+    'placedWords': placedWords.map((word) => word.toJson()).toList(),
+  };
+
+  factory CrosswordBoard.fromJson(Map<String, dynamic> json) => CrosswordBoard(
+    title: json['title'] as String? ?? 'Crucigrama',
+    category: json['category'] as String? ?? 'General',
+    rows: json['rows'] as int,
+    cols: json['cols'] as int,
+    grid: (json['grid'] as List)
+        .map((row) => (row as List)
+            .map((cell) => CrosswordCell.fromJson(cell as Map<String, dynamic>))
+            .toList())
+        .toList(),
+    placedWords: (json['placedWords'] as List)
+        .map((word) => PlacedWord.fromJson(word as Map<String, dynamic>))
+        .toList(),
+  );
 }

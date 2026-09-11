@@ -39,6 +39,28 @@ class CrosswordCell {
       isError: isError ?? this.isError,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'row': row,
+    'col': col,
+    'solutionChar': solutionChar,
+    'userChar': userChar,
+    'isBlack': isBlack,
+    'number': number,
+    'isRevealed': isRevealed,
+    'isError': isError,
+  };
+
+  factory CrosswordCell.fromJson(Map<String, dynamic> json) => CrosswordCell(
+    row: json['row'] as int,
+    col: json['col'] as int,
+    solutionChar: json['solutionChar'] as String,
+    userChar: json['userChar'] as String? ?? '',
+    isBlack: json['isBlack'] as bool? ?? false,
+    number: json['number'] as int?,
+    isRevealed: json['isRevealed'] as bool? ?? false,
+    isError: json['isError'] as bool? ?? false,
+  );
 }
 
 class PlacedWord {
@@ -80,4 +102,26 @@ class PlacedWord {
       return row - startRow;
     }
   }
+
+  Map<String, dynamic> toJson() => {
+    'word': word,
+    'clue': clue,
+    'category': category,
+    'wordId': wordId,
+    'startRow': startRow,
+    'startCol': startCol,
+    'isAcross': isAcross,
+    'number': number,
+  };
+
+  factory PlacedWord.fromJson(Map<String, dynamic> json) => PlacedWord(
+    word: json['word'] as String,
+    clue: json['clue'] as String,
+    category: json['category'] as String,
+    wordId: json['wordId'] as int,
+    startRow: json['startRow'] as int,
+    startCol: json['startCol'] as int,
+    isAcross: json['isAcross'] as bool,
+    number: json['number'] as int,
+  );
 }

@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/crossword_board.dart';
+import '../../models/crossword_cell.dart';
 import '../../services/ad_manager.dart';
 import '../../services/game_state_provider.dart';
 import '../../theme/editorial_theme.dart';
@@ -77,7 +78,7 @@ class _CrosswordGameScreenState extends State<CrosswordGameScreen> {
     }
 
     // Check for level completion dialog trigger
-    if (gameState.isLevelComplete && !_dialogShown) {
+    if (gameState.isLevelComplete && !_dialogShown && !gameState.isReviewMode) {
       _dialogShown = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showDialog(
@@ -89,10 +90,15 @@ class _CrosswordGameScreenState extends State<CrosswordGameScreen> {
             onNextLevel: () {
               setState(() => _dialogShown = false);
               AdManager.onLevelCompleted(context);
-              gameState.startNewLevel(
-                title: "Siguiente Edición",
-                category: gameState.currentBoard?.category ?? "Todos",
-              );
+              if (gameState.isTutorialLevel) {
+                // Exit tutorial to home
+                Navigator.pop(context);
+              } else {
+                gameState.startNewLevel(
+                  title: "Siguiente Edición",
+                  category: gameState.currentBoard?.category ?? "Todos",
+                );
+              }
             },
           ),
         );
@@ -110,17 +116,40 @@ class _CrosswordGameScreenState extends State<CrosswordGameScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              gameState.currentBoard?.title ?? "Crucigrama",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    gameState.currentBoard?.title ?? "Crucigrama",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                if (gameState.isReviewMode) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: EditorialTheme.accent.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      "ARCHIVO",
+                      style: GoogleFonts.inter(fontSize: 8.5, fontWeight: FontWeight.bold, color: EditorialTheme.accent),
+                    ),
+                  ),
+                ],
+              ],
             ),
             Text(
-              "${gameState.currentBoard?.placedWords.length ?? 0} Palabras • ${gameState.currentBoard?.category ?? 'General'}",
+              gameState.isReviewMode
+                  ? "Modo Lectura • Hemeroteca Histórica"
+                  : "${gameState.currentBoard?.placedWords.length ?? 0} Palabras • ${gameState.currentBoard?.category ?? 'General'}",
               style: GoogleFonts.inter(
                 fontSize: 9.5,
                 fontWeight: FontWeight.w600,
@@ -292,6 +321,10 @@ class _CrosswordGameScreenState extends State<CrosswordGameScreen> {
                     ),
                   ),
 
+                  // Tutorial Step-by-Step Banner
+                  if (gameState.isTutorialLevel)
+                    _buildTutorialBanner(gameState),
+
                   // Interactive Crossword Board Grid
                   Expanded(
                     child: Padding(
@@ -355,11 +388,145 @@ class _CrosswordGameScreenState extends State<CrosswordGameScreen> {
                   // Clue Dock
                   const ClueDockWidget(),
 
-                  // QWERTY On-Screen Keyboard
-                  const EditorialKeyboard(),
+                  // Keyboard or Review Mode Bar
+                  gameState.isReviewMode
+                      ? _buildReviewModeBottomBar(context)
+                      : const EditorialKeyboard(),
                 ],
               ),
                 ),
+    );
+  }
+
+  Widget _buildTutorialBanner(GameStateProvider gameState) {
+    if (gameState.currentBoard == null) return const SizedBox.shrink();
+
+    final palabraWord = gameState.currentBoard!.placedWords
+        .cast<PlacedWord?>()
+        .firstWhere((w) => w?.word == 'PALABRA', orElse: () => null);
+    final papelWord = gameState.currentBoard!.placedWords
+        .cast<PlacedWord?>()
+        .firstWhere((w) => w?.word == 'PAPEL', orElse: () => null);
+
+    final bool isPalabraDone = palabraWord != null &&
+        gameState.completedWordIdsInCurrentLevel.contains(palabraWord.wordId);
+    final bool isPapelDone = papelWord != null &&
+        gameState.completedWordIdsInCurrentLevel.contains(papelWord.wordId);
+
+    String stepTitle = "PASO 1: TU PRIMER VOCABLO";
+    String stepText = "Toca la casilla inicial (P). Observa la pista superior: 'Unidad lingüística dotada de significado'. ¡Escribe PALABRA!";
+    IconData stepIcon = Icons.touch_app;
+
+    if (!isPalabraDone) {
+      bool hasSomeChars = false;
+      for (int c = 0; c < 7; c++) {
+        if (gameState.currentBoard!.grid[0][c].userChar.isNotEmpty) {
+          hasSomeChars = true;
+          break;
+        }
+      }
+      if (hasSomeChars) {
+        stepTitle = "PASO 2: COMPLETA 'PALABRA'";
+        stepText = "Usa el teclado inferior para escribir P - A - L - A - B - R - A. Las casillas avanzan automáticamente.";
+        stepIcon = Icons.keyboard;
+      }
+    } else if (!isPapelDone) {
+      stepTitle = "PASO 3: EL CRUCE DE PALABRAS";
+      stepText = "¡Excelente! Fíjate cómo la 'P' inicial ya está escrita para la palabra vertical 'PAPEL'. Toca y escribe: A - P - E - L.";
+      stepIcon = Icons.alt_route;
+    } else {
+      stepTitle = "¡TUTORIAL SUPERADO!";
+      stepText = "¡Has completado tu primer crucigrama! Las palabras cruzadas comparten letras en sus intersecciones.";
+      stepIcon = Icons.check_circle_outline;
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: EditorialTheme.secondary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: EditorialTheme.secondary, width: 1.2),
+      ),
+      child: Row(
+        children: [
+          Icon(stepIcon, color: EditorialTheme.secondary, size: 22),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  stepTitle,
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.8,
+                    color: EditorialTheme.secondary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  stepText,
+                  style: GoogleFonts.inter(
+                    fontSize: 11.5,
+                    color: EditorialTheme.textPrimary,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 200.ms);
+  }
+
+  Widget _buildReviewModeBottomBar(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: EditorialTheme.surface,
+        border: const Border(top: BorderSide(color: EditorialTheme.borderLine, width: 1.5)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.archive_outlined, color: EditorialTheme.accent, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                "EDICIÓN DE ARCHIVO EN MODO LECTURA",
+                style: GoogleFonts.cinzel(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.1,
+                  color: EditorialTheme.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            "Toca cualquier casilla para ver su definición y palabra resuelta.",
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: EditorialTheme.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back, size: 16),
+            label: const Text("Volver a la Hemeroteca"),
+          ),
+        ],
+      ),
     );
   }
 

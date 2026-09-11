@@ -374,4 +374,62 @@ class CrosswordGenerator {
       placedWords: [w1, w2, w3, w4],
     );
   }
+
+  static CrosswordBoard generateTutorialBoard() {
+    // Tutorial Board: "PALABRA" (Horizontal) and "PAPEL" (Vertical)
+    // Both intersect perfectly at (0, 0) sharing the letter 'P'.
+    final w1 = PlacedWord(
+      word: "PALABRA",
+      clue: "Unidad lingüística dotada de significado que compone los crucigramas.",
+      category: "Tutorial",
+      wordId: 99901,
+      startRow: 0,
+      startCol: 0,
+      isAcross: true,
+      number: 1,
+    );
+    final w2 = PlacedWord(
+      word: "PAPEL",
+      clue: "Soporte tradicional de imprenta donde se lee la prensa matutina.",
+      category: "Tutorial",
+      wordId: 99902,
+      startRow: 0,
+      startCol: 0,
+      isAcross: false,
+      number: 1,
+    );
+
+    const rows = 5;
+    const cols = 7;
+    List<List<CrosswordCell>> grid = List.generate(
+      rows,
+      (r) => List.generate(
+        cols,
+        (c) => CrosswordCell(row: r, col: c, solutionChar: '', isBlack: true),
+      ),
+    );
+
+    for (final pw in [w1, w2]) {
+      for (int i = 0; i < pw.word.length; i++) {
+        int r = pw.isAcross ? pw.startRow : pw.startRow + i;
+        int c = pw.isAcross ? pw.startCol + i : pw.startCol;
+        grid[r][c] = CrosswordCell(
+          row: r,
+          col: c,
+          solutionChar: pw.word[i],
+          isBlack: false,
+          number: (r == pw.startRow && c == pw.startCol) ? 1 : grid[r][c].number,
+        );
+      }
+    }
+
+    return CrosswordBoard(
+      title: "Edición Tutorial: Tu Primer Crucigrama",
+      category: "Tutorial",
+      rows: rows,
+      cols: cols,
+      grid: grid,
+      placedWords: [w1, w2],
+    );
+  }
 }

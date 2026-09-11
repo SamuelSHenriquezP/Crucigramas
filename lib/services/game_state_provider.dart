@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/crossword_board.dart';
 import '../models/crossword_cell.dart';
 import '../models/word_entry.dart';
+import '../models/completed_edition.dart';
 import 'dictionary_repository.dart';
 import 'crossword_generator.dart';
 
@@ -26,10 +28,16 @@ class GameStateProvider with ChangeNotifier {
   PlacedWord? _lastCompletedWordCelebration;
   int _wordCelebrationTick = 0;
 
-  // Daily Challenge Tracking
+  // Daily Challenge & Tutorial Tracking
   String _lastDailyCompletedDate = '';
   bool _isDailyLevel = false;
+  bool _isTutorialLevel = false;
+  bool _isTutorialCompleted = false;
+  bool _isReviewMode = false;
   int _levelReward = 100;
+
+  // History Tracking (Hemeroteca)
+  List<CompletedEdition> _completedHistory = [];
 
   // New discovered words in current completed level
   List<WordEntry> _newlyDiscoveredWords = [];
@@ -48,10 +56,14 @@ class GameStateProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   List<WordEntry> get newlyDiscoveredWords => _newlyDiscoveredWords;
   bool get isDailyLevel => _isDailyLevel;
+  bool get isTutorialLevel => _isTutorialLevel;
+  bool get isTutorialCompleted => _isTutorialCompleted;
+  bool get isReviewMode => _isReviewMode;
   int get levelReward => _levelReward;
   Set<int> get completedWordIdsInCurrentLevel => _completedWordIdsInCurrentLevel;
   PlacedWord? get lastCompletedWordCelebration => _lastCompletedWordCelebration;
   int get wordCelebrationTick => _wordCelebrationTick;
+  List<CompletedEdition> get completedHistory => List.unmodifiable(_completedHistory.reversed);
 
   String get todayDateString {
     final now = DateTime.now();
@@ -75,6 +87,7 @@ class GameStateProvider with ChangeNotifier {
   String _draftTitle = '';
   String _draftCategory = '';
   int _draftElapsedSeconds = 0;
+  String _draftBoardJson = '';
   List<String> _draftGridState = [];
 
   Set<String> get unlockedShopItems => _unlockedShopItems;
@@ -96,13 +109,26 @@ class GameStateProvider with ChangeNotifier {
       _activeTitleId = prefs.getString('active_title') ?? 'title_cronista';
       _lastDailyCompletedDate = prefs.getString('last_daily_date') ?? '';
       _hasNoAds = prefs.getBool('has_no_ads') ?? false;
+      _isTutorialCompleted = prefs.getBool('tutorial_completed') ?? false;
 
       // Draft state loading
       _hasSavedDraft = prefs.getBool('has_saved_draft') ?? false;
       _draftTitle = prefs.getString('draft_title') ?? '';
       _draftCategory = prefs.getString('draft_category') ?? '';
       _draftElapsedSeconds = prefs.getInt('draft_elapsed') ?? 0;
+      _draftBoardJson = prefs.getString('draft_board_json') ?? '';
       _draftGridState = prefs.getStringList('draft_grid_state') ?? [];
+
+      // Completed history loading
+      final historyJson = prefs.getString('completed_history_json');
+      if (historyJson != null && historyJson.isNotEmpty) {
+        try {
+          final List decoded = jsonDecode(historyJson);
+          _completedHistory = decoded
+              .map((e) => CompletedEdition.fromJson(e as Map<String, dynamic>))
+              .toList();
+        } catch (_) {}
+      }
 
       final unlockedList = prefs.getStringList('unlocked_shop') ?? ['default_theme', 'font_playfair', 'title_cronista'];
       _unlockedShopItems = unlockedList.toSet();
@@ -124,13 +150,21 @@ class GameStateProvider with ChangeNotifier {
       await prefs.setString('active_title', _activeTitleId);
       await prefs.setString('last_daily_date', _lastDailyCompletedDate);
       await prefs.setBool('has_no_ads', _hasNoAds);
+      await prefs.setBool('tutorial_completed', _isTutorialCompleted);
 
       // Draft state saving
       await prefs.setBool('has_saved_draft', _hasSavedDraft);
       await prefs.setString('draft_title', _draftTitle);
       await prefs.setString('draft_category', _draftCategory);
       await prefs.setInt('draft_elapsed', _draftElapsedSeconds);
+      await prefs.setString('draft_board_json', _draftBoardJson);
       await prefs.setStringList('draft_grid_state', _draftGridState);
+
+      // Completed history saving
+      try {
+        final histJson = jsonEncode(_completedHistory.map((e) => e.toJson()).toList());
+        await prefs.setString('completed_history_json', histJson);
+      } catch (_) {}
 
       await prefs.setStringList('unlocked_shop', _unlockedShopItems.toList());
       await prefs.setStringList(
@@ -141,20 +175,15 @@ class GameStateProvider with ChangeNotifier {
   }
 
   void saveLevelDraft() {
-    if (_currentBoard == null || _isLevelComplete) return;
+    if (_currentBoard == null || _isLevelComplete || _isReviewMode) return;
     _hasSavedDraft = true;
     _draftTitle = _currentBoard!.title;
     _draftCategory = _currentBoard!.category;
     _draftElapsedSeconds = _elapsedSeconds;
-    
-    _draftGridState = [];
-    for (int r = 0; r < _currentBoard!.rows; r++) {
-      for (int c = 0; c < _currentBoard!.cols; c++) {
-        final cell = _currentBoard!.grid[r][c];
-        if (!cell.isBlack && cell.userChar.isNotEmpty) {
-          _draftGridState.add("$r,$c:${cell.userChar}:${cell.isRevealed ? '1' : '0'}");
-        }
-      }
+    try {
+      _draftBoardJson = jsonEncode(_currentBoard!.toJson());
+    } catch (e) {
+      debugPrint("Error serializing board to JSON: $e");
     }
     _saveStateToPrefs();
     notifyListeners();
@@ -162,32 +191,48 @@ class GameStateProvider with ChangeNotifier {
 
   Future<void> resumeSavedDraft() async {
     if (!_hasSavedDraft) return;
+
+    if (_draftBoardJson.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(_draftBoardJson) as Map<String, dynamic>;
+        _currentBoard = CrosswordBoard.fromJson(decoded);
+        _elapsedSeconds = _draftElapsedSeconds;
+        _isLevelComplete = false;
+        _isReviewMode = false;
+        _isDailyLevel = false;
+        _isTutorialLevel = _currentBoard!.category == 'Tutorial';
+        _completedWordIdsInCurrentLevel.clear();
+
+        // Restore already completed word IDs
+        for (final word in _currentBoard!.placedWords) {
+          bool wordComplete = true;
+          for (int i = 0; i < word.word.length; i++) {
+            int r = word.isAcross ? word.startRow : word.startRow + i;
+            int c = word.isAcross ? word.startCol + i : word.startCol;
+            final cell = _currentBoard!.grid[r][c];
+            if (!cell.isCorrect) {
+              wordComplete = false;
+              break;
+            }
+          }
+          if (wordComplete) {
+            _completedWordIdsInCurrentLevel.add(word.wordId);
+          }
+        }
+
+        _selectFirstPlayableCell();
+        notifyListeners();
+        return;
+      } catch (e) {
+        debugPrint("Error deserializing board JSON: $e");
+      }
+    }
+
+    // Fallback if no json available
     await startNewLevel(
       title: _draftTitle.isNotEmpty ? _draftTitle : "Borrador de Edición",
       category: _draftCategory.isNotEmpty ? _draftCategory : "Todos",
     );
-    
-    if (_currentBoard != null) {
-      for (final entry in _draftGridState) {
-        final parts = entry.split(':');
-        if (parts.length >= 3) {
-          final coords = parts[0].split(',');
-          int r = int.parse(coords[0]);
-          int c = int.parse(coords[1]);
-          String char = parts[1];
-          bool isRev = parts[2] == '1';
-
-          if (r < _currentBoard!.rows && c < _currentBoard!.cols) {
-            final cell = _currentBoard!.grid[r][c];
-            if (!cell.isBlack) {
-              cell.userChar = char;
-              cell.isRevealed = isRev;
-            }
-          }
-        }
-      }
-      _elapsedSeconds = _draftElapsedSeconds;
-    }
     notifyListeners();
   }
 
@@ -196,6 +241,7 @@ class GameStateProvider with ChangeNotifier {
     _draftTitle = '';
     _draftCategory = '';
     _draftElapsedSeconds = 0;
+    _draftBoardJson = '';
     _draftGridState = [];
     _saveStateToPrefs();
     notifyListeners();
@@ -250,6 +296,8 @@ class GameStateProvider with ChangeNotifier {
 
   Future<void> startDailyChallenge() async {
     _isDailyLevel = true;
+    _isTutorialLevel = false;
+    _isReviewMode = false;
     _levelReward = 200;
     final dateStr = todayDateString;
     await startNewLevel(
@@ -258,6 +306,48 @@ class GameStateProvider with ChangeNotifier {
       targetWordsCount: 10,
       reward: 200,
     );
+  }
+
+  Future<void> startTutorialLevel() async {
+    _isLoading = true;
+    _isLevelComplete = false;
+    _isReviewMode = false;
+    _isDailyLevel = false;
+    _isTutorialLevel = true;
+    _completedWordIdsInCurrentLevel.clear();
+    _lastCompletedWordCelebration = null;
+    _newlyDiscoveredWords = [];
+    _elapsedSeconds = 0;
+    _levelReward = 150;
+    notifyListeners();
+
+    _currentBoard = CrosswordGenerator.generateTutorialBoard();
+    _selectFirstPlayableCell();
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  void loadBoardFromHistory(CompletedEdition edition) {
+    if (edition.boardData != null) {
+      try {
+        _currentBoard = CrosswordBoard.fromJson(edition.boardData!);
+        _isReviewMode = true;
+        _isLevelComplete = true;
+        _isTutorialLevel = false;
+        _isDailyLevel = false;
+        _elapsedSeconds = edition.elapsedSeconds;
+        _selectFirstPlayableCell();
+        notifyListeners();
+      } catch (e) {
+        debugPrint("Error loading history board: $e");
+      }
+    }
+  }
+
+  void clearCompletedHistory() {
+    _completedHistory.clear();
+    _saveStateToPrefs();
+    notifyListeners();
   }
 
   Future<void> startNewLevel({
@@ -269,6 +359,8 @@ class GameStateProvider with ChangeNotifier {
   }) async {
     _isLoading = true;
     _isLevelComplete = false;
+    _isReviewMode = false;
+    _isTutorialLevel = false;
     _completedWordIdsInCurrentLevel.clear();
     _lastCompletedWordCelebration = null;
     _newlyDiscoveredWords = [];
@@ -374,7 +466,7 @@ class GameStateProvider with ChangeNotifier {
   }
 
   void onKeyInput(String letter) {
-    if (_currentBoard == null || _focusedRow == -1 || _isLevelComplete) return;
+    if (_currentBoard == null || _focusedRow == -1 || _isLevelComplete || _isReviewMode) return;
 
     final cell = _currentBoard!.grid[_focusedRow][_focusedCol];
     if (cell.isBlack) return;
@@ -389,7 +481,7 @@ class GameStateProvider with ChangeNotifier {
   }
 
   void onBackspace() {
-    if (_currentBoard == null || _focusedRow == -1 || _isLevelComplete) return;
+    if (_currentBoard == null || _focusedRow == -1 || _isLevelComplete || _isReviewMode) return;
 
     final cell = _currentBoard!.grid[_focusedRow][_focusedCol];
     if (cell.userChar.isNotEmpty) {
@@ -473,7 +565,7 @@ class GameStateProvider with ChangeNotifier {
   }
 
   void _checkWordAndBoardCompletion() {
-    if (_currentBoard == null) return;
+    if (_currentBoard == null || _isReviewMode) return;
 
     // Check individual word completions for micro-celebration
     for (final word in _currentBoard!.placedWords) {
@@ -502,10 +594,27 @@ class GameStateProvider with ChangeNotifier {
       _completedLevelsCount++;
       _coins += _levelReward;
 
+      if (_isTutorialLevel) {
+        _isTutorialCompleted = true;
+      }
+
       if (_isDailyLevel && !isDailyCompletedToday) {
         _lastDailyCompletedDate = todayDateString;
         _streak++;
       }
+
+      // Record in Completed Editions History (Hemeroteca)
+      final edition = CompletedEdition(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: _currentBoard!.title,
+        category: _currentBoard!.category,
+        wordsCount: _currentBoard!.placedWords.length,
+        elapsedSeconds: _elapsedSeconds,
+        completedAt: DateTime.now(),
+        coinsEarned: _levelReward,
+        boardData: _currentBoard!.toJson(),
+      );
+      _completedHistory.add(edition);
 
       // Collect newly discovered words for the dictionary
       final repo = DictionaryRepository();
@@ -528,7 +637,7 @@ class GameStateProvider with ChangeNotifier {
 
   // Hint: Reveal Letter (35 coins)
   bool revealLetter() {
-    if (_currentBoard == null || _focusedRow == -1 || _coins < 35) return false;
+    if (_currentBoard == null || _focusedRow == -1 || _coins < 35 || _isReviewMode) return false;
     final cell = _currentBoard!.grid[_focusedRow][_focusedCol];
     if (cell.isBlack || cell.isCorrect) return false;
 
@@ -546,7 +655,7 @@ class GameStateProvider with ChangeNotifier {
   // Hint: Reveal Word (80 coins)
   bool revealWord() {
     final word = currentFocusedWord;
-    if (_currentBoard == null || word == null || _coins < 80) return false;
+    if (_currentBoard == null || word == null || _coins < 80 || _isReviewMode) return false;
 
     for (int i = 0; i < word.word.length; i++) {
       int r = word.isAcross ? word.startRow : word.startRow + i;
@@ -566,7 +675,7 @@ class GameStateProvider with ChangeNotifier {
 
   // Hint: Check for errors (25 coins)
   bool checkErrors() {
-    if (_currentBoard == null || _coins < 25) return false;
+    if (_currentBoard == null || _coins < 25 || _isReviewMode) return false;
 
     for (int r = 0; r < _currentBoard!.rows; r++) {
       for (int c = 0; c < _currentBoard!.cols; c++) {

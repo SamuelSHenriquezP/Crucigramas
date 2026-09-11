@@ -10,6 +10,7 @@ import '../game/crossword_game_screen.dart';
 import '../dictionary/dictionary_screen.dart';
 import '../shop/shop_screen.dart';
 import '../categories/category_select_screen.dart';
+import '../history/history_screen.dart';
 import '../../widgets/newspaper_tutorial_dialog.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -110,227 +111,16 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              // 3. Featured Hero Card: Active Draft OR Daily Challenge (Centered layout)
+              // 3. Featured Hero Card: Active Draft, Tutorial, or Daily Challenge
               gameState.hasSavedDraft
-                  ? InkWell(
-                      onTap: () async {
-                        await gameState.resumeSavedDraft();
-                        if (context.mounted) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (ctx) => const CrosswordGameScreen()),
-                          );
-                        }
-                      },
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: EditorialTheme.accent.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: EditorialTheme.accent, width: 1.8),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.edit_note, color: EditorialTheme.accent, size: 22),
-                                const SizedBox(width: 6),
-                                Text(
-                                  "BORRADOR GUARDADO",
-                                  style: GoogleFonts.inter(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.1,
-                                    color: EditorialTheme.accent,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              gameState.draftTitle,
-                              textAlign: TextAlign.center,
-                              style: EditorialTheme.getEditorialFont(
-                                fontId: gameState.activeFontId,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              "Continúa resolviendo tu partida en borrador",
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: EditorialTheme.textSecondary,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: () async {
-                                  await gameState.resumeSavedDraft();
-                                  if (context.mounted) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (ctx) => const CrosswordGameScreen()),
-                                    );
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: EditorialTheme.primary,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                                icon: const Icon(Icons.play_arrow, color: EditorialTheme.surface, size: 20),
-                                label: Text(
-                                  "CONTINUAR PARTIDA",
-                                  style: GoogleFonts.inter(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                    color: EditorialTheme.surface,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  : InkWell(
-                      onTap: () {
-                        gameState.startDailyChallenge();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (ctx) => const CrosswordGameScreen()),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: gameState.isDailyCompletedToday
-                              ? const Color(0xFFEFF5F1)
-                              : EditorialTheme.surface,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: gameState.isDailyCompletedToday
-                                ? EditorialTheme.success
-                                : EditorialTheme.primary,
-                            width: 1.8,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: EditorialTheme.primary.withValues(alpha: 0.06),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: gameState.isDailyCompletedToday
-                                        ? EditorialTheme.success
-                                        : EditorialTheme.accent,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    gameState.isDailyCompletedToday
-                                        ? "COMPLETADO HOY"
-                                        : "DESAFÍO DEL DÍA",
-                                    style: GoogleFonts.inter(
-                                      fontSize: 10.5,
-                                      fontWeight: FontWeight.bold,
-                                      color: gameState.isDailyCompletedToday
-                                          ? EditorialTheme.surface
-                                          : EditorialTheme.textPrimary,
-                                      letterSpacing: 1.0,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "+200 🪙",
-                                  style: GoogleFonts.inter(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: EditorialTheme.primary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Crucigrama del Día",
-                              textAlign: TextAlign.center,
-                              style: EditorialTheme.getEditorialFont(
-                                fontId: gameState.activeFontId,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: EditorialTheme.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              gameState.isDailyCompletedToday
-                                  ? "Has completado la edición de hoy. ¡Vuelve mañana!"
-                                  : "Edición especial diaria con palabras e intersecciones únicas.",
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: EditorialTheme.textSecondary,
-                              ),
-                            ),
-                            const SizedBox(height: 14),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  gameState.startDailyChallenge();
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (ctx) => const CrosswordGameScreen()),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: EditorialTheme.primary,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                                icon: Icon(
-                                  gameState.isDailyCompletedToday ? Icons.replay : Icons.play_arrow_rounded,
-                                  color: EditorialTheme.surface,
-                                  size: 22,
-                                ),
-                                label: Text(
-                                  gameState.isDailyCompletedToday ? "REJUGAR DESAFÍO" : "RESOLVER AHORA",
-                                  style: GoogleFonts.inter(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                    color: EditorialTheme.surface,
-                                    letterSpacing: 0.8,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  ? _buildDraftHeroCard(context, gameState)
+                  : (!gameState.isTutorialCompleted && gameState.completedLevelsCount == 0)
+                      ? _buildTutorialHeroCard(context, gameState)
+                      : _buildDailyChallengeHeroCard(context, gameState),
 
               const SizedBox(height: 16),
 
-              // 4. Centered 2x2 Grid of Main Action Cards
+              // 4. Centered 3x2 Grid of Main Action Cards
               Row(
                 children: [
                   Expanded(
@@ -398,6 +188,49 @@ class HomeScreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(builder: (ctx) => const ShopScreen()),
                         );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildCenteredActionCard(
+                      context,
+                      gameState,
+                      icon: Icons.history_edu,
+                      iconColor: EditorialTheme.secondary,
+                      title: "Hemeroteca",
+                      subtitle: "${gameState.completedHistory.length} ediciones",
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (ctx) => const HistoryScreen()),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildCenteredActionCard(
+                      context,
+                      gameState,
+                      icon: Icons.school,
+                      iconColor: EditorialTheme.accent,
+                      title: "Tutorial",
+                      subtitle: "Palabra 'PALABRA'",
+                      onTap: () async {
+                        await gameState.startTutorialLevel();
+                        if (context.mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (ctx) => const CrosswordGameScreen()),
+                          );
+                        }
                       },
                     ),
                   ),
@@ -810,6 +643,348 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDraftHeroCard(BuildContext context, GameStateProvider gameState) {
+    return InkWell(
+      onTap: () async {
+        await gameState.resumeSavedDraft();
+        if (context.mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (ctx) => const CrosswordGameScreen()),
+          );
+        }
+      },
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: EditorialTheme.accent.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: EditorialTheme.accent, width: 1.8),
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.edit_note, color: EditorialTheme.accent, size: 22),
+                const SizedBox(width: 6),
+                Text(
+                  "BORRADOR GUARDADO",
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.1,
+                    color: EditorialTheme.accent,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              gameState.draftTitle,
+              textAlign: TextAlign.center,
+              style: EditorialTheme.getEditorialFont(
+                fontId: gameState.activeFontId,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              "Continúa resolviendo tu partida en borrador",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: EditorialTheme.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await gameState.resumeSavedDraft();
+                  if (context.mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (ctx) => const CrosswordGameScreen()),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: EditorialTheme.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                icon: const Icon(Icons.play_arrow, color: EditorialTheme.surface, size: 20),
+                label: Text(
+                  "CONTINUAR PARTIDA",
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: EditorialTheme.surface,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTutorialHeroCard(BuildContext context, GameStateProvider gameState) {
+    return InkWell(
+      onTap: () async {
+        await gameState.startTutorialLevel();
+        if (context.mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (ctx) => const CrosswordGameScreen()),
+          );
+        }
+      },
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: EditorialTheme.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: EditorialTheme.secondary, width: 2.0),
+          boxShadow: [
+            BoxShadow(
+              color: EditorialTheme.secondary.withValues(alpha: 0.12),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: EditorialTheme.secondary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.school, size: 14, color: EditorialTheme.secondary),
+                      const SizedBox(width: 4),
+                      Text(
+                        "TUTORIAL DE BIENVENIDA",
+                        style: GoogleFonts.inter(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.bold,
+                          color: EditorialTheme.secondary,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "+150 🪙",
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: EditorialTheme.accent,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Tu Primer Crucigrama",
+              textAlign: TextAlign.center,
+              style: EditorialTheme.getEditorialFont(
+                fontId: gameState.activeFontId,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: EditorialTheme.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              "Aprende paso a paso cómo se completan las casillas y cruces con la palabra 'PALABRA'.",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: EditorialTheme.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await gameState.startTutorialLevel();
+                  if (context.mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (ctx) => const CrosswordGameScreen()),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: EditorialTheme.secondary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                icon: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 22),
+                label: Text(
+                  "COMENZAR TUTORIAL",
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDailyChallengeHeroCard(BuildContext context, GameStateProvider gameState) {
+    return InkWell(
+      onTap: () {
+        gameState.startDailyChallenge();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (ctx) => const CrosswordGameScreen()),
+        );
+      },
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: gameState.isDailyCompletedToday
+              ? const Color(0xFFEFF5F1)
+              : EditorialTheme.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: gameState.isDailyCompletedToday
+                ? EditorialTheme.success
+                : EditorialTheme.primary,
+            width: 1.8,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: EditorialTheme.primary.withValues(alpha: 0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: gameState.isDailyCompletedToday
+                        ? EditorialTheme.success
+                        : EditorialTheme.accent,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    gameState.isDailyCompletedToday
+                        ? "COMPLETADO HOY"
+                        : "DESAFÍO DEL DÍA",
+                    style: GoogleFonts.inter(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.bold,
+                      color: gameState.isDailyCompletedToday
+                          ? EditorialTheme.surface
+                          : EditorialTheme.textPrimary,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "+200 🪙",
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: EditorialTheme.primary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Crucigrama del Día",
+              textAlign: TextAlign.center,
+              style: EditorialTheme.getEditorialFont(
+                fontId: gameState.activeFontId,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: EditorialTheme.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              gameState.isDailyCompletedToday
+                  ? "Has completado la edición de hoy. ¡Vuelve mañana!"
+                  : "Edición especial diaria con palabras e intersecciones únicas.",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: EditorialTheme.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  gameState.startDailyChallenge();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (ctx) => const CrosswordGameScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: EditorialTheme.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                icon: Icon(
+                  gameState.isDailyCompletedToday ? Icons.replay : Icons.play_arrow_rounded,
+                  color: EditorialTheme.surface,
+                  size: 22,
+                ),
+                label: Text(
+                  gameState.isDailyCompletedToday ? "REJUGAR DESAFÍO" : "RESOLVER AHORA",
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: EditorialTheme.surface,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
