@@ -19,7 +19,7 @@ class EditorialKeyboard extends StatelessWidget {
     final gameState = Provider.of<GameStateProvider>(context, listen: false);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 6.0),
+      padding: const EdgeInsets.fromLTRB(4.0, 6.0, 4.0, 8.0),
       decoration: const BoxDecoration(
         color: EditorialTheme.background,
         border: Border(
@@ -30,7 +30,7 @@ class EditorialKeyboard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: _keys.map((row) {
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2.5),
+            padding: const EdgeInsets.symmetric(vertical: 3.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: row.map((key) {
@@ -92,31 +92,31 @@ class _TactileKeyButtonState extends State<_TactileKeyButton> {
       },
       onTapCancel: () => setState(() => _isPressed = false),
       child: AnimatedScale(
-        scale: _isPressed ? 0.90 : 1.0,
+        scale: _isPressed ? 0.92 : 1.0,
         duration: const Duration(milliseconds: 70),
         curve: Curves.easeOutCubic,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 100),
-          height: 44,
+          height: 52, // Altura ampliada para mayor comodidad táctil al escribir
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: isDel
                 ? (_isPressed ? const Color(0xFF0F323E) : EditorialTheme.primary)
                 : (_isPressed ? const Color(0xFFEDE8DD) : Colors.white),
-            borderRadius: BorderRadius.circular(6.0),
+            borderRadius: BorderRadius.circular(7.0),
             border: Border.all(
               color: isDel
                   ? EditorialTheme.primary
                   : const Color(0xFFD4CEBF),
-              width: 1.1,
+              width: 1.2,
             ),
             boxShadow: _isPressed
                 ? []
                 : [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 1.5,
-                      offset: const Offset(0, 1.5),
+                      blurRadius: 2.0,
+                      offset: const Offset(0, 1.8),
                     ),
                   ],
           ),
@@ -124,13 +124,13 @@ class _TactileKeyButtonState extends State<_TactileKeyButton> {
               ? const Icon(
                   Icons.backspace_outlined,
                   color: EditorialTheme.surface,
-                  size: 19,
+                  size: 21,
                 )
               : Text(
                   widget.label,
-                  style: GoogleFonts.playfairDisplay(
-                    fontSize: 16.5,
-                    fontWeight: FontWeight.bold,
+                  style: GoogleFonts.inter(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.w700,
                     color: EditorialTheme.textPrimary,
                   ),
                 ),
