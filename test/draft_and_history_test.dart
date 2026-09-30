@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:crucigramas/models/crossword_board.dart';
-import 'package:crucigramas/models/crossword_cell.dart';
 import 'package:crucigramas/models/completed_edition.dart';
 import 'package:crucigramas/services/crossword_generator.dart';
 import 'package:crucigramas/services/game_state_provider.dart';
