@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -76,7 +76,8 @@
         <span class="badge">Google Play Compliance</span>
         <h1>Política de Privacidad</h1>
         <p><strong>Aplicación:</strong> Crucigramas Clásicos</p>
-        <p><strong>Última actualización:</strong> Octubre de 2026</p>
+        <p><strong>Paquete (Application ID):</strong> <code>com.inventustechstudio.crucigramas</code></p>
+        <p><strong>Última actualización:</strong> Noviembre de 2026</p>
         <p><strong>Desarrollador:</strong> Inventus Tech Studio / Samuel Henríquez</p>
         <p><strong>Contacto:</strong> <a href="mailto:samuelshenriquezp@gmail.com">samuelshenriquezp@gmail.com</a></p>
 
@@ -86,17 +87,16 @@
         <h2>2. Recopilación y Uso de Datos</h2>
         <p><strong>Arquitectura Local y Sin Rastreo:</strong></p>
         <ul>
-            <li><strong>No recopilamos información personal identificable</strong> (como nombre, número de teléfono, dirección física ni contactos).</li>
-            <li><strong>Almacenamiento Local (Offline-first):</strong> Los datos generados por tu uso de la aplicación (como progreso, preferencias, estadísticas o configuraciones) se almacenan de forma local en tu dispositivo mediante almacenamiento cifrado/seguro de Android (SharedPreferences / SQLite).</li>
+            <li><strong>No recopilamos información personal identificable</strong> (como nombre, correo electrónico, número de teléfono, dirección física ni contactos).</li>
+            <li><strong>Almacenamiento Local (Offline-first):</strong> Los datos generados por tu uso de la aplicación (progreso de crucigramas, tiempos, estadísticas y preferencias de interfaz) se almacenan de forma local en tu dispositivo mediante <code>SharedPreferences</code>.</li>
             <li>No transmitimos ni vendemos tus datos a ningún servidor externo ni a terceros.</li>
         </ul>
 
         <h2>3. Permisos del Dispositivo</h2>
-        <p>La aplicación puede solicitar ciertos permisos del sistema operativo Android únicamente cuando son estrictamente necesarios para su funcionamiento:</p>
+        <p>La aplicación solicita únicamente los permisos técnicos necesarios para su funcionamiento:</p>
         <ul>
-            <li><strong>Notificaciones / Alarmas exactas:</strong> Para enviar recordatorios o alertas programadas directamente en tu teléfono según tus preferencias.</li>
-            <li><strong>Vibración:</strong> Para retroalimentación táctil (*haptic feedback*) durante las interacciones.</li>
-            <li><strong>Inicio al reiniciar (*RECEIVE_BOOT_COMPLETED*):</strong> Para reprogramar tus recordatorios locales si el teléfono se reinicia.</li>
+            <li><strong>Vibración (<code>VIBRATE</code>):</strong> Para retroalimentación táctil (*haptic feedback*) al completar palabras e interactuar con el tablero.</li>
+            <li><strong>Acceso a Internet (<code>INTERNET</code>):</strong> Utilizado únicamente para la carga de recursos tipográficos básicos cuando no están en caché local. El juego funciona 100% sin conexión.</li>
         </ul>
 
         <h2>4. Servicios de Terceros</h2>

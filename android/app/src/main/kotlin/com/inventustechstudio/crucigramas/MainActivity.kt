@@ -1,4 +1,4 @@
-package com.editorial.crucigramas.crucigramas
+package com.inventustechstudio.crucigramas
 
 import io.flutter.embedding.android.FlutterActivity
 
