@@ -30,41 +30,54 @@ class CrosswordGenerator {
     int targetWordsCount = 10,
     int targetGridDimension = 10,
     String? difficultyFilter,
+    Set<int> excludeWordIds = const {},
   }) async {
     final repo = DictionaryRepository();
     if (!repo.isLoaded) {
       await repo.loadDictionary();
     }
 
-    List<WordEntry> candidates = repo.getWordsByCategory(category);
+    final random = Random();
+    List<WordEntry> pool = repo.getWordsByCategory(category);
     if (difficultyFilter != null) {
-      final diffFiltered = candidates.where((w) => w.difficulty == difficultyFilter).toList();
+      final diffFiltered = pool.where((w) => w.difficulty == difficultyFilter).toList();
       if (diffFiltered.length >= targetWordsCount + 5) {
-        candidates = diffFiltered;
+        pool = diffFiltered;
       } else {
-        // Supplement with other words of the same category
-        final remainingInCat = candidates.where((w) => w.difficulty != difficultyFilter).toList()..shuffle();
-        candidates = [...diffFiltered, ...remainingInCat];
+        final remainingInCat = pool.where((w) => w.difficulty != difficultyFilter).toList()..shuffle(random);
+        pool = [...diffFiltered, ...remainingInCat];
       }
     }
 
-    // Ensure we have a generous candidate pool (at least targetWordsCount + 25)
+    // Prioritize unseen/unsolved words immediately; only backfill with solved words
+    // when fewer than needed unseen words remain in the requested pool.
+    final freshPool = pool.where((w) => !excludeWordIds.contains(w.id)).toList()..shuffle(random);
+    final usedPool = pool.where((w) => excludeWordIds.contains(w.id)).toList()..shuffle(random);
+    List<WordEntry> candidates = [...freshPool, ...usedPool];
+
+    // Ensure a generous candidate pool (at least targetWordsCount + 25), prioritizing unsolved global matches first
     if (candidates.length < targetWordsCount + 25) {
-      final allMatchingDiff = repo.allWords.where((w) => difficultyFilter == null || w.difficulty == difficultyFilter).toList()..shuffle();
-      candidates = {...candidates, ...allMatchingDiff, ...repo.allWords}.toList();
+      final extraFresh = repo.allWords
+          .where((w) => !excludeWordIds.contains(w.id) && (difficultyFilter == null || w.difficulty == difficultyFilter))
+          .toList()
+        ..shuffle(random);
+      final extraAll = repo.allWords.where((w) => !excludeWordIds.contains(w.id)).toList()..shuffle(random);
+      candidates = {...candidates, ...extraFresh, ...extraAll, ...repo.allWords}.toList();
     }
 
     CrosswordBoard? bestBoard;
     int maxScore = -999999;
 
+    final rootSource = freshPool.isNotEmpty ? freshPool : candidates;
+    final sortedRoots = [...rootSource]..sort((a, b) => b.word.length.compareTo(a.word.length));
+    final rootPoolSize = min(25, sortedRoots.length);
+
     // Run multiple procedural attempts to get the highest density, best connected layout
-    final random = Random();
     for (int attempt = 0; attempt < 70; attempt++) {
-      // Pick one of the longest candidate words as the starting root
-      final sortedLongest = [...candidates]..sort((a, b) => b.word.length.compareTo(a.word.length));
-      final rootCandidates = sortedLongest.take(10).toList();
-      final firstWord = rootCandidates[random.nextInt(rootCandidates.length)];
-      final remainingCandidates = candidates.where((w) => w.id != firstWord.id).toList()..shuffle(random);
+      final firstWord = sortedRoots[random.nextInt(rootPoolSize)];
+      final remainingFresh = freshPool.where((w) => w.id != firstWord.id).toList()..shuffle(random);
+      final remainingBackfill = candidates.where((w) => w.id != firstWord.id && excludeWordIds.contains(w.id)).toList()..shuffle(random);
+      final remainingCandidates = [...remainingFresh, ...remainingBackfill];
 
       final board = _buildSingleBoardAttempt(
         title: title,

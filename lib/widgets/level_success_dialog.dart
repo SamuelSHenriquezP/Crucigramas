@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:confetti/confetti.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../models/word_entry.dart';
 import '../services/game_state_provider.dart';
@@ -30,7 +29,7 @@ class _LevelSuccessDialogState extends State<LevelSuccessDialog> {
   @override
   void initState() {
     super.initState();
-    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+    _confettiController = ConfettiController(duration: const Duration(seconds: 2));
     _confettiController.play();
   }
 
@@ -47,7 +46,6 @@ class _LevelSuccessDialogState extends State<LevelSuccessDialog> {
     return Stack(
       alignment: Alignment.center,
       children: [
-        // Confetti effect
         ConfettiWidget(
           confettiController: _confettiController,
           blastDirectionality: BlastDirectionality.explosive,
@@ -62,147 +60,107 @@ class _LevelSuccessDialogState extends State<LevelSuccessDialog> {
 
         Dialog(
           backgroundColor: EditorialTheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-            side: const BorderSide(color: EditorialTheme.primary, width: 2.5),
+          elevation: 0,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+            side: BorderSide(color: EditorialTheme.borderLine, width: 1.0),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(22, 20, 22, 22),
+            decoration: const BoxDecoration(
+              border: Border(
+                top: BorderSide(color: EditorialTheme.inkDark, width: 2.5),
+              ),
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Top Editorial Seal Banner
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: EditorialTheme.accent,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    "¡EDICIÓN COMPLETADA!",
-                    style: EditorialTheme.getEditorialFont(
-                      fontId: activeFontId,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.5,
-                      color: EditorialTheme.textPrimary,
+                // Masthead strip
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "GACETA OFICIAL",
+                      style: GoogleFonts.inter(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.4,
+                        color: EditorialTheme.textSecondary,
+                      ),
                     ),
-                  ),
-                ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack),
+                    Text(
+                      "EDICIÓN COMPLETADA",
+                      style: GoogleFonts.inter(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.4,
+                        color: EditorialTheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Container(height: 0.8, color: EditorialTheme.borderLine),
+                const SizedBox(height: 18),
 
-                const SizedBox(height: 16),
-
-                // Radiant Trophy Badge with Sunburst Glow
-                Center(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: EditorialTheme.accent.withValues(alpha: 0.18),
-                        ),
-                      ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
-                            begin: const Offset(0.9, 0.9),
-                            end: const Offset(1.25, 1.25),
-                            duration: 1200.ms,
-                          ),
-                      Container(
-                        width: 66,
-                        height: 66,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFD97706).withValues(alpha: 0.45),
-                              blurRadius: 16,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.emoji_events_rounded,
-                          size: 38,
-                          color: Colors.white,
-                        ),
-                      ).animate().scale(
-                            duration: 600.ms,
-                            curve: Curves.elasticOut,
-                          ),
-                    ],
-                  ),
+                // Quiet editorial seal
+                const Icon(
+                  Icons.workspace_premium_outlined,
+                  size: 32,
+                  color: EditorialTheme.accent,
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
 
                 Text(
                   "Crucigrama Resuelto",
+                  textAlign: TextAlign.center,
                   style: EditorialTheme.getEditorialFont(
                     fontId: activeFontId,
                     fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w800,
                     color: EditorialTheme.textPrimary,
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
 
                 Text(
-                  "Has ejercitado tu intelecto y enriquecido tu léxico con maestría.",
+                  "Has completado cada cruce y enriquecido el archivo léxico de esta edición.",
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
-                    fontSize: 13,
+                    fontSize: 12.5,
                     color: EditorialTheme.textSecondary,
-                    height: 1.3,
+                    height: 1.38,
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 18),
 
-                // Reward Banner with Animated Progressive Counter
+                // Hairline reward strip
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
                   decoration: BoxDecoration(
                     color: EditorialTheme.background,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: EditorialTheme.accent, width: 1.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: EditorialTheme.accent.withValues(alpha: 0.12),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    border: Border.all(color: EditorialTheme.borderLine, width: 0.9),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.monetization_on, color: EditorialTheme.accent, size: 28)
-                          .animate(onPlay: (c) => c.repeat(reverse: true))
-                          .scale(
-                            begin: const Offset(0.95, 0.95),
-                            end: const Offset(1.15, 1.15),
-                            duration: 500.ms,
-                          ),
+                      const Icon(Icons.monetization_on_outlined, color: EditorialTheme.accent, size: 22),
                       const SizedBox(width: 8),
                       TweenAnimationBuilder<int>(
                         tween: IntTween(begin: 0, end: widget.coinsEarned),
-                        duration: const Duration(milliseconds: 900),
+                        duration: const Duration(milliseconds: 700),
                         curve: Curves.easeOutCubic,
                         builder: (context, val, _) {
                           return Text(
-                            "+$val Monedas de Oro",
-                            style: EditorialTheme.getEditorialFont(
-                              fontId: activeFontId,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                            "+$val MONEDAS EDITORIALES",
+                            style: GoogleFonts.inter(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.8,
                               color: EditorialTheme.primary,
                             ),
                           );
@@ -210,29 +168,27 @@ class _LevelSuccessDialogState extends State<LevelSuccessDialog> {
                       ),
                     ],
                   ),
-                ).animate().fade().slideY(begin: 0.3, end: 0),
+                ),
 
-                const SizedBox(height: 16),
-
-                // Newly Discovered Words section
                 if (widget.newlyDiscoveredWords.isNotEmpty) ...[
+                  const SizedBox(height: 16),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      "Nuevos términos añadidos al diccionario (${widget.newlyDiscoveredWords.length}):",
+                      "NUEVOS TÉRMINOS ARCHIVADOS (${widget.newlyDiscoveredWords.length})",
                       style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: EditorialTheme.primary,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.0,
+                        color: EditorialTheme.textSecondary,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Container(
                     constraints: const BoxConstraints(maxHeight: 110),
                     decoration: BoxDecoration(
                       color: EditorialTheme.background,
-                      borderRadius: BorderRadius.circular(6),
                       border: Border.all(color: EditorialTheme.borderLine),
                     ),
                     child: ListView.separated(
@@ -269,10 +225,10 @@ class _LevelSuccessDialogState extends State<LevelSuccessDialog> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 16),
                 ],
 
-                // Action Buttons
+                const SizedBox(height: 18),
+
                 Row(
                   children: [
                     Expanded(
@@ -286,21 +242,21 @@ class _LevelSuccessDialogState extends State<LevelSuccessDialog> {
                         },
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          side: const BorderSide(color: EditorialTheme.primary, width: 1.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
-                          ),
+                          side: const BorderSide(color: EditorialTheme.inkDark, width: 1.2),
+                          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                         ),
                         child: Text(
-                          "Diccionario",
+                          "DICCIONARIO",
                           style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold,
-                            color: EditorialTheme.primary,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.7,
+                            color: EditorialTheme.inkDark,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 10),
                     Expanded(
                       flex: 2,
                       child: ElevatedButton(
@@ -312,15 +268,17 @@ class _LevelSuccessDialogState extends State<LevelSuccessDialog> {
                           backgroundColor: EditorialTheme.primary,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
-                            side: const BorderSide(color: EditorialTheme.inkDark, width: 1.5),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                            side: BorderSide(color: EditorialTheme.inkDark, width: 1.4),
                           ),
                         ),
                         child: Text(
-                          "Siguiente Edición",
+                          "SIGUIENTE EDICIÓN",
                           style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.8,
                             color: EditorialTheme.surface,
                           ),
                         ),

@@ -7,7 +7,9 @@ import '../../services/dictionary_repository.dart';
 import '../../theme/editorial_theme.dart';
 
 class DictionaryScreen extends StatefulWidget {
-  const DictionaryScreen({super.key});
+  final bool embedded;
+
+  const DictionaryScreen({super.key, this.embedded = false});
 
   @override
   State<DictionaryScreen> createState() => _DictionaryScreenState();
@@ -33,144 +35,131 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
       filteredWords = filteredWords.where((w) => solvedIds.contains(w.id)).toList();
     }
 
-    return Scaffold(
-      backgroundColor: EditorialTheme.background,
-      appBar: AppBar(
-        title: Text(
-          "DICCIONARIO EDITORIAL",
-          style: GoogleFonts.playfairDisplay(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              _showOnlySolved ? Icons.lock_clock : Icons.public,
-              color: EditorialTheme.primary,
-            ),
-            tooltip: _showOnlySolved ? "Mostrando solo descubiertas" : "Mostrando todo el catálogo",
-            onPressed: () {
-              setState(() => _showOnlySolved = !_showOnlySolved);
-            },
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Banner statistics
-            Container(
-              margin: const EdgeInsets.all(16.0),
-              padding: const EdgeInsets.all(16.0),
-              decoration: EditorialTheme.newspaperCardDecoration,
-              child: Row(
+    final bodyContent = Column(
+      children: [
+        // Open typographic léxico summary strip (no heavy icon box)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: EditorialTheme.primary,
-                      borderRadius: BorderRadius.circular(8),
+                  Text(
+                    "${solvedIds.length} / ${allWords.length} Términos",
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                      color: EditorialTheme.textPrimary,
                     ),
-                    child: const Icon(Icons.auto_stories, color: EditorialTheme.surface, size: 26),
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "LÉXICO DESCUBIERTO",
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
-                            color: EditorialTheme.accent,
-                          ),
+                  InkWell(
+                    onTap: () => setState(() => _showOnlySolved = !_showOnlySolved),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: _showOnlySolved ? EditorialTheme.inkDark : EditorialTheme.surface,
+                        border: Border.all(
+                          color: _showOnlySolved ? EditorialTheme.inkDark : EditorialTheme.borderLine,
+                          width: 0.9,
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          "${solvedIds.length} de ${allWords.length} Términos",
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: EditorialTheme.textPrimary,
-                          ),
+                      ),
+                      child: Text(
+                        _showOnlySolved ? "MI LÉXICO" : "VER TODO",
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.9,
+                          color: _showOnlySolved ? EditorialTheme.surface : EditorialTheme.inkDark,
                         ),
-                        const SizedBox(height: 4),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: allWords.isEmpty ? 0 : solvedIds.length / allWords.length,
-                            backgroundColor: EditorialTheme.borderLine,
-                            color: EditorialTheme.primary,
-                            minHeight: 6,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+                  LinearProgressIndicator(
+                    value: allWords.isEmpty ? 0 : solvedIds.length / allWords.length,
+                    backgroundColor: EditorialTheme.borderLine.withValues(alpha: 0.6),
+                    color: EditorialTheme.primary,
+                    minHeight: 3,
                   ),
                 ],
               ),
             ),
 
-            // Search Bar & Filter Chips
+            // Search Bar (open bottom-ruled editorial input)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: TextField(
                 onChanged: (val) => setState(() => _searchQuery = val),
                 decoration: InputDecoration(
                   hintText: "Buscar palabra o significado...",
                   hintStyle: GoogleFonts.inter(fontSize: 13, color: EditorialTheme.textSecondary),
-                  prefixIcon: const Icon(Icons.search, color: EditorialTheme.primary),
+                  prefixIcon: const Icon(Icons.search_sharp, color: EditorialTheme.textSecondary, size: 19),
                   filled: true,
                   fillColor: EditorialTheme.surface,
                   contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: EditorialTheme.borderLine),
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.zero,
+                    borderSide: BorderSide(color: EditorialTheme.borderLine, width: 0.9),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: EditorialTheme.borderLine),
+                  enabledBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.zero,
+                    borderSide: BorderSide(color: EditorialTheme.borderLine, width: 0.9),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: EditorialTheme.primary, width: 1.5),
+                  focusedBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.zero,
+                    borderSide: BorderSide(color: EditorialTheme.inkDark, width: 1.1),
                   ),
                 ),
               ),
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
 
-            // Horizontal Categories Filter Chips
-            SizedBox(
-              height: 36,
+            // Open Editorial Underline Tabs for Categories
+            Container(
+              height: 32,
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: EditorialTheme.borderLine, width: 0.8),
+                ),
+              ),
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 itemCount: categories.length,
                 itemBuilder: (ctx, i) {
                   final cat = categories[i];
                   final isSelected = _selectedCategory == cat;
                   return Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: FilterChip(
-                      label: Text(cat),
-                      selected: isSelected,
-                      selectedColor: EditorialTheme.primary,
-                      checkmarkColor: EditorialTheme.surface,
-                      backgroundColor: EditorialTheme.surface,
-                      labelStyle: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: isSelected ? EditorialTheme.surface : EditorialTheme.textPrimary,
+                    padding: const EdgeInsets.only(right: 18.0),
+                    child: InkWell(
+                      onTap: () => setState(() => _selectedCategory = cat),
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: isSelected ? EditorialTheme.inkDark : Colors.transparent,
+                              width: 2.0,
+                            ),
+                          ),
+                        ),
+                        child: Text(
+                          cat.toUpperCase(),
+                          style: GoogleFonts.inter(
+                            fontSize: 10.5,
+                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                            letterSpacing: 0.9,
+                            color: isSelected ? EditorialTheme.inkDark : EditorialTheme.textSecondary,
+                          ),
+                        ),
                       ),
-                      onSelected: (val) {
-                        setState(() => _selectedCategory = cat);
-                      },
                     ),
                   );
                 },
@@ -213,19 +202,24 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                         final isSolved = solvedIds.contains(word.id);
 
                         return ListTile(
+                          contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
                           onTap: () => _showWordDetailBottomSheet(context, word, isSolved),
                           leading: Container(
                             width: 36,
                             height: 36,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: isSolved ? EditorialTheme.primary : EditorialTheme.borderLine,
-                              borderRadius: BorderRadius.circular(6),
+                              color: isSolved ? EditorialTheme.inkDark : EditorialTheme.background,
+                              borderRadius: BorderRadius.zero,
+                              border: Border.all(
+                                color: isSolved ? EditorialTheme.inkDark : EditorialTheme.borderLine,
+                                width: 1.0,
+                              ),
                             ),
                             child: Icon(
-                              isSolved ? Icons.check_circle_outline : Icons.lock_outline,
+                              isSolved ? Icons.check_sharp : Icons.lock_outline,
                               color: isSolved ? EditorialTheme.surface : EditorialTheme.textSecondary,
-                              size: 20,
+                              size: 18,
                             ),
                           ),
                           title: Text(
@@ -246,18 +240,19 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                             ),
                           ),
                           trailing: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                             decoration: BoxDecoration(
-                              color: EditorialTheme.background,
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: EditorialTheme.borderLine),
+                              color: EditorialTheme.surface,
+                              borderRadius: BorderRadius.zero,
+                              border: Border.all(color: EditorialTheme.borderLine, width: 1),
                             ),
                             child: Text(
-                              word.category,
+                              word.category.toUpperCase(),
                               style: GoogleFonts.inter(
-                                fontSize: 10,
+                                fontSize: 9,
                                 color: EditorialTheme.primary,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.6,
                               ),
                             ),
                           ),
@@ -266,8 +261,33 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                     ),
             ),
           ],
+        );
+
+    if (widget.embedded) return bodyContent;
+
+    return Scaffold(
+      backgroundColor: EditorialTheme.background,
+      appBar: AppBar(
+        backgroundColor: EditorialTheme.background,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_sharp, size: 20, color: EditorialTheme.inkDark),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          "Diccionario",
+          style: GoogleFonts.libreBaskerville(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: EditorialTheme.inkDark,
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(0.8),
+          child: Container(height: 0.8, color: EditorialTheme.borderLine),
         ),
       ),
+      body: SafeArea(child: bodyContent),
     );
   }
 
@@ -276,11 +296,14 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
       context: context,
       backgroundColor: EditorialTheme.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.zero,
       ),
       builder: (ctx) {
-        return Padding(
-          padding: const EdgeInsets.all(24.0),
+        return Container(
+          decoration: const BoxDecoration(
+            border: Border(top: BorderSide(color: EditorialTheme.inkDark, width: 2.5)),
+          ),
+          padding: const EdgeInsets.fromLTRB(22, 18, 22, 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,34 +312,41 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: EditorialTheme.accent,
-                      borderRadius: BorderRadius.circular(4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: const BoxDecoration(
+                      color: EditorialTheme.inkDark,
+                      borderRadius: BorderRadius.zero,
                     ),
                     child: Text(
                       word.category.toUpperCase(),
                       style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: EditorialTheme.textPrimary,
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.0,
+                        color: EditorialTheme.surface,
                       ),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: EditorialTheme.primary),
-                    onPressed: () => Navigator.pop(ctx),
+                  InkWell(
+                    onTap: () => Navigator.pop(ctx),
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: EditorialTheme.inkDark, width: 1.0),
+                      ),
+                      child: const Icon(Icons.close, color: EditorialTheme.inkDark, size: 16),
+                    ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
 
               Text(
                 isSolved ? word.word : "PALABRA BLOQUEADA",
                 style: GoogleFonts.playfairDisplay(
                   fontSize: 26,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w800,
                   color: EditorialTheme.textPrimary,
                 ),
               ),
@@ -333,13 +363,16 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                 ),
               ],
 
-              const Divider(color: EditorialTheme.borderLine, height: 24),
+              const SizedBox(height: 12),
+              EditorialTheme.doubleRule(color: EditorialTheme.inkDark),
+              const SizedBox(height: 12),
 
               Text(
-                "Definición Editorial:",
+                "DEFINICIÓN EDITORIAL",
                 style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.1,
                   color: EditorialTheme.textSecondary,
                 ),
               ),
@@ -347,42 +380,39 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
               Text(
                 isSolved ? word.clue : "Esta palabra se desbloqueará una vez que la resuelvas en cualquiera de los crucigramas del juego.",
                 style: GoogleFonts.inter(
-                  fontSize: 15,
+                  fontSize: 14.5,
                   color: EditorialTheme.textPrimary,
-                  height: 1.3,
+                  height: 1.38,
                 ),
               ),
 
               if (isSolved && word.example.isNotEmpty) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
                 Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                  decoration: const BoxDecoration(
                     color: EditorialTheme.background,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: EditorialTheme.borderLine),
+                    borderRadius: BorderRadius.zero,
+                    border: Border(
+                      left: BorderSide(color: EditorialTheme.accent, width: 3.0),
+                      top: BorderSide(color: EditorialTheme.borderLine, width: 0.8),
+                      right: BorderSide(color: EditorialTheme.borderLine, width: 0.8),
+                      bottom: BorderSide(color: EditorialTheme.borderLine, width: 0.8),
+                    ),
                   ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.format_quote, color: EditorialTheme.accent, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          word.example,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontStyle: FontStyle.italic,
-                            color: EditorialTheme.textPrimary,
-                          ),
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    "\"${word.example}\"",
+                    style: GoogleFonts.inter(
+                      fontSize: 12.5,
+                      fontStyle: FontStyle.italic,
+                      color: EditorialTheme.textPrimary,
+                      height: 1.35,
+                    ),
                   ),
                 ),
               ],
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
             ],
           ),
         );

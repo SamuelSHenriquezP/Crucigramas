@@ -8,7 +8,9 @@ import '../../theme/editorial_theme.dart';
 import '../game/crossword_game_screen.dart';
 
 class HistoryScreen extends StatelessWidget {
-  const HistoryScreen({super.key});
+  final bool embedded;
+
+  const HistoryScreen({super.key, this.embedded = false});
 
   @override
   Widget build(BuildContext context) {
@@ -28,102 +30,75 @@ class HistoryScreen extends StatelessWidget {
         ? "${totalHours}h ${remainingMinutes}m"
         : "${remainingMinutes}m ${totalSeconds % 60}s";
 
-    return Scaffold(
-      backgroundColor: EditorialTheme.background,
-      appBar: AppBar(
-        title: Column(
-          children: [
-            Text(
-              "LA HEMEROTECA",
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2.0,
-                color: EditorialTheme.textPrimary,
-              ),
-            ),
-            Text(
-              "ARCHIVO HISTÓRICO DE EDICIONES RESUELTAS",
-              style: GoogleFonts.cinzel(
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.2,
-                color: EditorialTheme.textSecondary,
-              ),
-            ),
-          ],
-        ),
-        centerTitle: true,
-        actions: [
-          if (history.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.delete_sweep_outlined, size: 22),
-              tooltip: "Limpiar Hemeroteca",
-              onPressed: () => _confirmClearHistory(context, gameState),
-            ),
-        ],
-      ),
-      body: history.isEmpty
-          ? _buildEmptyState(context, gameState)
-          : CustomScrollView(
-              slivers: [
-                // Top Summary Header Card
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      decoration: EditorialTheme.newspaperCardDecoration,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildStatColumn(
-                            icon: Icons.history_edu,
-                            color: EditorialTheme.primary,
-                            value: "${history.length}",
-                            label: "Ediciones",
-                          ),
-                          Container(height: 30, width: 1, color: EditorialTheme.borderLine),
-                          _buildStatColumn(
-                            icon: Icons.spellcheck,
-                            color: EditorialTheme.secondary,
-                            value: "$totalWords",
-                            label: "Palabras",
-                          ),
-                          Container(height: 30, width: 1, color: EditorialTheme.borderLine),
-                          _buildStatColumn(
-                            icon: Icons.timer_outlined,
-                            color: EditorialTheme.accent,
-                            value: timeDisplay,
-                            label: "Tiempo Total",
-                          ),
-                        ],
-                      ),
-                    ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.05, end: 0),
-                  ),
-                ),
-
-                // Section Label
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
+    final bodyContent = history.isEmpty
+        ? _buildEmptyState(context, gameState)
+        : CustomScrollView(
+            slivers: [
+              // Top Summary Header Card
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: EditorialTheme.newspaperCardDecoration,
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        const Icon(Icons.menu_book, size: 16, color: EditorialTheme.primary),
-                        const SizedBox(width: 8),
-                        Text(
+                        _buildStatColumn(
+                          icon: Icons.history_edu,
+                          color: EditorialTheme.primary,
+                          value: "${history.length}",
+                          label: "Ediciones",
+                        ),
+                        Container(height: 30, width: 1, color: EditorialTheme.borderLine),
+                        _buildStatColumn(
+                          icon: Icons.spellcheck,
+                          color: EditorialTheme.secondary,
+                          value: "$totalWords",
+                          label: "Palabras",
+                        ),
+                        Container(height: 30, width: 1, color: EditorialTheme.borderLine),
+                        _buildStatColumn(
+                          icon: Icons.timer_outlined,
+                          color: EditorialTheme.accent,
+                          value: timeDisplay,
+                          label: "Tiempo Total",
+                        ),
+                      ],
+                    ),
+                  ).animate().fadeIn(duration: 280.ms).slideY(begin: -0.04, end: 0),
+                ),
+              ),
+
+              // Section Label + Clear action
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 14, 8),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.menu_book, size: 15, color: EditorialTheme.primary),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
                           "REGISTRO DE EJEMPLARES (${history.length})",
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
                             letterSpacing: 1.1,
                             color: EditorialTheme.textSecondary,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        icon: const Icon(Icons.delete_sweep_outlined, size: 19, color: EditorialTheme.textSecondary),
+                        tooltip: "Limpiar Hemeroteca",
+                        onPressed: () => _confirmClearHistory(context, gameState),
+                      ),
+                    ],
                   ),
                 ),
+              ),
 
                 // History List
                 SliverPadding(
@@ -139,7 +114,34 @@ class HistoryScreen extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
+            );
+
+    if (embedded) return bodyContent;
+
+    return Scaffold(
+      backgroundColor: EditorialTheme.background,
+      appBar: AppBar(
+        backgroundColor: EditorialTheme.background,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_sharp, size: 20, color: EditorialTheme.inkDark),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          "Hemeroteca",
+          style: GoogleFonts.libreBaskerville(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: EditorialTheme.inkDark,
+          ),
+        ),
+        centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(0.8),
+          child: Container(height: 0.8, color: EditorialTheme.borderLine),
+        ),
+      ),
+      body: bodyContent,
     );
   }
 
@@ -156,9 +158,10 @@ class HistoryScreen extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.plusJakartaSans(
             fontSize: 16,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
+            fontFeatures: const [FontFeature.tabularFigures()],
             color: EditorialTheme.textPrimary,
           ),
         ),
@@ -179,41 +182,27 @@ class HistoryScreen extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: EditorialTheme.surface,
-                shape: BoxShape.circle,
-                border: Border.all(color: EditorialTheme.borderLine, width: 2),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.local_library_outlined,
-                size: 64,
-                color: EditorialTheme.primary,
-              ),
+            const Icon(
+              Icons.local_library_outlined,
+              size: 42,
+              color: EditorialTheme.primary,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Text(
               "Hemeroteca sin Archivos",
               style: GoogleFonts.playfairDisplay(
                 fontSize: 22,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w800,
                 color: EditorialTheme.textPrimary,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Text(
-              "Aún no has completado ninguna edición del periódico. ¡Cada crucigrama resuelto quedará archivado aquí para que puedas consultar sus soluciones cuando gustes!",
+              "Cada crucigrama resuelto quedará guardado aquí para que puedas consultarlo en modo lectura.",
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 13,
@@ -221,19 +210,18 @@ class HistoryScreen extends StatelessWidget {
                 color: EditorialTheme.textSecondary,
               ),
             ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
+            const SizedBox(height: 22),
+            ElevatedButton(
               onPressed: () async {
                 await gameState.startTutorialLevel();
                 if (context.mounted) {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (ctx) => const CrosswordGameScreen()),
                   );
                 }
               },
-              icon: const Icon(Icons.school, size: 18),
-              label: const Text("Jugar Tutorial (PALABRA)"),
+              child: const Text("JUGAR TUTORIAL (PALABRA)"),
             ),
           ],
         ),
@@ -250,14 +238,9 @@ class HistoryScreen extends StatelessWidget {
     final isTutorial = edition.category == 'Tutorial';
     final isDaily = edition.title.contains('Día');
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: 1.5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: const BorderSide(color: EditorialTheme.borderLine, width: 1),
-      ),
-      color: EditorialTheme.surface,
+      decoration: EditorialTheme.newspaperCardDecoration,
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -271,15 +254,15 @@ class HistoryScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: isTutorial
-                        ? EditorialTheme.secondary.withValues(alpha: 0.15)
+                        ? EditorialTheme.secondary.withValues(alpha: 0.12)
                         : (isDaily
-                            ? EditorialTheme.accent.withValues(alpha: 0.2)
-                            : EditorialTheme.borderLine.withValues(alpha: 0.4)),
-                    borderRadius: BorderRadius.circular(4),
+                            ? EditorialTheme.accent.withValues(alpha: 0.16)
+                            : EditorialTheme.background),
+                    borderRadius: BorderRadius.zero,
                     border: Border.all(
                       color: isTutorial
                           ? EditorialTheme.secondary
-                          : (isDaily ? EditorialTheme.accent : EditorialTheme.borderLine),
+                          : (isDaily ? EditorialTheme.accent : EditorialTheme.inkDark),
                       width: 1,
                     ),
                   ),
@@ -288,23 +271,23 @@ class HistoryScreen extends StatelessWidget {
                     children: [
                       Icon(
                         isTutorial
-                            ? Icons.school
-                            : (isDaily ? Icons.stars : Icons.label_outline),
+                            ? Icons.school_outlined
+                            : (isDaily ? Icons.stars_sharp : Icons.label_outline),
                         size: 11,
                         color: isTutorial
                             ? EditorialTheme.secondary
-                            : (isDaily ? EditorialTheme.accent : EditorialTheme.textPrimary),
+                            : (isDaily ? EditorialTheme.accent : EditorialTheme.inkDark),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         edition.category.toUpperCase(),
                         style: GoogleFonts.inter(
                           fontSize: 9.5,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w800,
                           color: isTutorial
                               ? EditorialTheme.secondary
-                              : (isDaily ? EditorialTheme.accent : EditorialTheme.textPrimary),
-                          letterSpacing: 0.5,
+                              : (isDaily ? EditorialTheme.accent : EditorialTheme.inkDark),
+                          letterSpacing: 0.7,
                         ),
                       ),
                     ],
@@ -325,15 +308,16 @@ class HistoryScreen extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
 
             // Title
             Text(
               edition.title,
               style: EditorialTheme.getEditorialFont(
                 fontId: gameState.activeFontId,
-                fontSize: 16,
+                fontSize: 16.5,
                 fontWeight: FontWeight.bold,
+                color: EditorialTheme.inkDark,
               ),
             ),
             const SizedBox(height: 10),
@@ -342,7 +326,7 @@ class HistoryScreen extends StatelessWidget {
             Row(
               children: [
                 _buildCardPill(
-                  icon: Icons.timer,
+                  icon: Icons.timer_outlined,
                   text: edition.formattedDuration,
                 ),
                 const SizedBox(width: 8),
@@ -354,19 +338,20 @@ class HistoryScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: EditorialTheme.accent.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
+                    color: EditorialTheme.accent.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.zero,
+                    border: Border.all(color: EditorialTheme.accent, width: 0.9),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.monetization_on, color: EditorialTheme.accent, size: 13),
+                      const Icon(Icons.monetization_on_outlined, color: EditorialTheme.accent, size: 13),
                       const SizedBox(width: 3),
                       Text(
                         "+${edition.coinsEarned}",
                         style: GoogleFonts.inter(
                           fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: EditorialTheme.textPrimary,
+                          fontWeight: FontWeight.w800,
+                          color: EditorialTheme.inkDark,
                         ),
                       ),
                     ],
@@ -376,31 +361,41 @@ class HistoryScreen extends StatelessWidget {
             ),
 
             if (edition.boardData != null) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               const Divider(height: 1, color: EditorialTheme.borderLine),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerRight,
-                child: TextButton.icon(
-                  onPressed: () {
+                child: InkWell(
+                  onTap: () {
                     gameState.loadBoardFromHistory(edition);
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (ctx) => const CrosswordGameScreen()),
                     );
                   },
-                  icon: const Icon(Icons.visibility, size: 16, color: EditorialTheme.primary),
-                  label: Text(
-                    "Revisar Tablero Completo",
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: EditorialTheme.primary,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: EditorialTheme.background,
+                      border: Border.all(color: EditorialTheme.inkDark, width: 1.0),
                     ),
-                  ),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    visualDensity: VisualDensity.compact,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.visibility_outlined, size: 14, color: EditorialTheme.inkDark),
+                        const SizedBox(width: 6),
+                        Text(
+                          "REVISAR TABLERO",
+                          style: GoogleFonts.inter(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.8,
+                            color: EditorialTheme.inkDark,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -416,8 +411,8 @@ class HistoryScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: EditorialTheme.background,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: EditorialTheme.borderLine, width: 0.8),
+        borderRadius: BorderRadius.zero,
+        border: Border.all(color: EditorialTheme.borderLine, width: 0.9),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -428,7 +423,7 @@ class HistoryScreen extends StatelessWidget {
             text,
             style: GoogleFonts.inter(
               fontSize: 11,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               color: EditorialTheme.textPrimary,
             ),
           ),

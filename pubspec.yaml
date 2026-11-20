@@ -39,6 +39,7 @@ dependencies:
   flutter_animate: ^4.5.0
   confetti: ^0.7.0
   provider: ^6.1.1
+  audioplayers: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -70,6 +71,7 @@ flutter:
   assets:
     - assets/images/
     - assets/data/
+    - assets/audio/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -35,76 +35,87 @@ class _ClueListModalState extends State<ClueListModal> with SingleTickerProvider
     final gameState = Provider.of<GameStateProvider>(context);
 
     return Container(
-      height: MediaQuery.of(context).size.height * 0.75,
+      height: MediaQuery.of(context).size.height * 0.76,
       decoration: const BoxDecoration(
         color: EditorialTheme.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.zero,
         border: Border(
-          top: BorderSide(color: EditorialTheme.primary, width: 3),
+          top: BorderSide(color: EditorialTheme.inkDark, width: 2.5),
+          left: BorderSide(color: EditorialTheme.inkDark, width: 1.2),
+          right: BorderSide(color: EditorialTheme.inkDark, width: 1.2),
         ),
       ),
-      child: Column(
-        children: [
-          // Drag handle
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: EditorialTheme.borderLine,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-
-          // Header title
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "ÍNDICE DE PISTAS",
-                  style: GoogleFonts.playfairDisplay(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: EditorialTheme.textPrimary,
+      child: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 12, 8, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "SUPLEMENTO DE PISTAS",
+                        style: GoogleFonts.inter(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.4,
+                          color: EditorialTheme.accent,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        "ÍNDICE DE DEFINICIONES",
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 19,
+                          fontWeight: FontWeight.bold,
+                          color: EditorialTheme.textPrimary,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close, color: EditorialTheme.primary),
-                ),
-              ],
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close, color: EditorialTheme.inkDark),
+                  ),
+                ],
+              ),
             ),
-          ),
 
-          // Tab Bar Across / Down
-          TabBar(
-            controller: _tabController,
-            indicatorColor: EditorialTheme.accent,
-            indicatorWeight: 3,
-            labelColor: EditorialTheme.primary,
-            unselectedLabelColor: EditorialTheme.textSecondary,
-            labelStyle: GoogleFonts.playfairDisplay(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
-            tabs: const [
-              Tab(text: "HORIZONTALES"),
-              Tab(text: "VERTICALES"),
-            ],
-          ),
+            EditorialTheme.doubleRule(margin: const EdgeInsets.symmetric(horizontal: 18)),
 
-          Expanded(
-            child: TabBarView(
+            TabBar(
               controller: _tabController,
-              children: [
-                _buildClueList(widget.board.acrossWords, gameState),
-                _buildClueList(widget.board.downWords, gameState),
+              indicatorColor: EditorialTheme.inkDark,
+              indicatorWeight: 2.5,
+              labelColor: EditorialTheme.inkDark,
+              unselectedLabelColor: EditorialTheme.textSecondary,
+              dividerColor: EditorialTheme.borderLine,
+              labelStyle: GoogleFonts.inter(
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.1,
+                fontSize: 12,
+              ),
+              tabs: [
+                Tab(text: "HORIZONTALES (${widget.board.acrossWords.length})"),
+                Tab(text: "VERTICALES (${widget.board.downWords.length})"),
               ],
             ),
-          ),
-        ],
+
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildClueList(widget.board.acrossWords, gameState),
+                  _buildClueList(widget.board.downWords, gameState),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -120,25 +131,24 @@ class _ClueListModalState extends State<ClueListModal> with SingleTickerProvider
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       itemCount: words.length,
       separatorBuilder: (ctx, i) => const Divider(color: EditorialTheme.borderLine, height: 1),
       itemBuilder: (ctx, i) {
         final pw = words[i];
 
-        // Check if word is fully solved
         bool isSolved = true;
         for (int k = 0; k < pw.word.length; k++) {
-          int r = pw.isAcross ? pw.startRow : pw.startRow + k;
-          int c = pw.isAcross ? pw.startCol + k : pw.startCol;
-          final cell = widget.board.grid[r][c];
-          if (!cell.isCorrect) {
+          final int r = pw.isAcross ? pw.startRow : pw.startRow + k;
+          final int c = pw.isAcross ? pw.startCol + k : pw.startCol;
+          if (!widget.board.grid[r][c].isCorrect) {
             isSolved = false;
             break;
           }
         }
 
         return ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
           onTap: () {
             gameState.selectCell(pw.startRow, pw.startCol);
             if (gameState.isAcrossFocus != pw.isAcross) {
@@ -147,41 +157,46 @@ class _ClueListModalState extends State<ClueListModal> with SingleTickerProvider
             Navigator.pop(context);
           },
           leading: Container(
-            width: 32,
-            height: 32,
+            width: 30,
+            height: 30,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: isSolved ? EditorialTheme.success : EditorialTheme.primary,
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.zero,
+              border: Border.all(color: EditorialTheme.inkDark, width: 1.0),
             ),
             child: Text(
               "${pw.number}",
               style: GoogleFonts.playfairDisplay(
                 color: EditorialTheme.surface,
                 fontWeight: FontWeight.bold,
-                fontSize: 14,
+                fontSize: 13.5,
               ),
             ),
           ),
           title: Text(
             pw.clue,
             style: GoogleFonts.inter(
-              fontSize: 14,
+              fontSize: 13.5,
               fontWeight: FontWeight.w600,
               color: isSolved ? EditorialTheme.success : EditorialTheme.textPrimary,
               decoration: isSolved ? TextDecoration.lineThrough : null,
             ),
           ),
           subtitle: Text(
-            "${pw.word.length} letras • ${pw.category}",
+            "${pw.word.length} LETRAS  ·  ${pw.category.toUpperCase()}",
             style: GoogleFonts.inter(
-              fontSize: 11,
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.6,
               color: EditorialTheme.textSecondary,
             ),
           ),
-          trailing: isSolved
-              ? const Icon(Icons.check_circle, color: EditorialTheme.success, size: 20)
-              : const Icon(Icons.chevron_right, color: EditorialTheme.borderLine, size: 20),
+          trailing: Icon(
+            isSolved ? Icons.check_box : Icons.arrow_forward_sharp,
+            color: isSolved ? EditorialTheme.success : EditorialTheme.textSecondary,
+            size: 18,
+          ),
         );
       },
     );

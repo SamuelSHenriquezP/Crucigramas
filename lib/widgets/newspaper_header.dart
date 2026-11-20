@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/editorial_theme.dart';
 
-import 'package:flutter_animate/flutter_animate.dart';
-
 class NewspaperHeader extends StatelessWidget {
   final String editionTitle;
   final String subtitle;
@@ -11,133 +9,84 @@ class NewspaperHeader extends StatelessWidget {
 
   const NewspaperHeader({
     super.key,
-    this.editionTitle = "EDICIÓN DE HOY",
-    this.subtitle = "Crucigramas de Alta Calidad Editorial",
-    this.showLogo = true,
+    this.editionTitle = "EDICIÓN DIARIA",
+    this.subtitle = "Crucigramas Editoriales",
+    this.showLogo = false,
   });
+
+  static const List<String> _months = [
+    'ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN',
+    'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC',
+  ];
 
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final dateStr = "${now.day}/${now.month}/${now.year}";
+    final dateStr = "${now.day.toString().padLeft(2, '0')} ${_months[now.month - 1]} ${now.year}";
+    final issueNum = now.month * 30 + now.day;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Top fine rule
-        Container(
-          height: 1,
-          color: EditorialTheme.textPrimary,
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-        ),
-        const SizedBox(height: 2),
-        Container(
-          height: 2.5,
-          color: EditorialTheme.textPrimary,
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-        ),
-        const SizedBox(height: 8),
-
-        // Date & Issue bar
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Nº ${now.year}.${now.month * 30 + now.day}",
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.2,
-                  color: EditorialTheme.textSecondary,
-                ),
-              ),
-              Text(
-                dateStr,
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.2,
-                  color: EditorialTheme.textSecondary,
-                ),
-              ),
-              Text(
-                "PREMIO EDITORIAL",
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.2,
-                  color: EditorialTheme.accent,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-
-        // Main Title Banner with optional graphite pencil logo
+        // Whisper dateline flanked by calm hairline
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            if (showLogo) ...[
-              Container(
-                height: 48,
-                width: 48,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Image.asset(
-                  'assets/images/logo_pencil.png',
-                  fit: BoxFit.contain,
-                  errorBuilder: (ctx, err, stack) => const Icon(
-                    Icons.edit,
-                    size: 32,
-                    color: EditorialTheme.primary,
-                  ),
-                ),
-              ).animate().rotate(duration: 400.ms, curve: Curves.easeOutBack),
-              const SizedBox(width: 12),
-            ],
-            Column(
-              children: [
-                Text(
-                  "EL CRUCIGRAMISTA",
-                  style: GoogleFonts.playfairDisplay(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.5,
-                    color: EditorialTheme.textPrimary,
-                  ),
-                ),
-                Text(
-                  subtitle.toUpperCase(),
-                  style: GoogleFonts.inter(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 2.0,
-                    color: EditorialTheme.primary,
-                  ),
-                ),
-              ],
+            Text(
+              "ED. Nº $issueNum  ·  $dateStr",
+              style: GoogleFonts.inter(
+                fontSize: 9.5,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1.3,
+                color: EditorialTheme.textSecondary,
+              ),
+            ),
+            Text(
+              editionTitle.toUpperCase(),
+              style: GoogleFonts.inter(
+                fontSize: 9.5,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.3,
+                color: EditorialTheme.accent,
+              ),
             ),
           ],
         ),
+        const SizedBox(height: 7),
+        Container(height: 0.8, color: EditorialTheme.borderLine),
+        const SizedBox(height: 12),
 
-        const SizedBox(height: 8),
-        // Bottom fine double rule
-        Container(
-          height: 2.5,
-          color: EditorialTheme.textPrimary,
-          margin: const EdgeInsets.symmetric(horizontal: 16),
+        // Centered, breathable classic broadsheet nameplate
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            "EL CRUCIGRAMISTA",
+            textAlign: TextAlign.center,
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.8,
+              color: EditorialTheme.textPrimary,
+              height: 1.05,
+            ),
+          ),
         ),
-        const SizedBox(height: 2),
-        Container(
-          height: 1,
-          color: EditorialTheme.textPrimary,
-          margin: const EdgeInsets.symmetric(horizontal: 16),
+        const SizedBox(height: 4),
+        Text(
+          subtitle.toUpperCase(),
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(
+            fontSize: 9,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 2.2,
+            color: EditorialTheme.textSecondary,
+          ),
         ),
+        const SizedBox(height: 12),
+
+        // Clean single anchor rule
+        EditorialTheme.doubleRule(color: EditorialTheme.inkDark),
       ],
-    ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1, curve: Curves.easeOutQuad);
+    );
   }
 }

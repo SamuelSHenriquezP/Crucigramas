@@ -18,101 +18,122 @@ class CategorySelectScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: EditorialTheme.background,
       appBar: AppBar(
+        backgroundColor: EditorialTheme.background,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          icon: const Icon(Icons.arrow_back_sharp, size: 20, color: EditorialTheme.inkDark),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          "TEMÁTICAS",
+          "Temáticas",
           style: GoogleFonts.playfairDisplay(
             fontSize: 20,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
+            color: EditorialTheme.inkDark,
           ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(0.8),
+          child: Container(height: 0.8, color: EditorialTheme.borderLine),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                "NIVEL RÁPIDO",
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
-                  color: EditorialTheme.textPrimary,
+                "EDICIÓN RÁPIDA",
+                style: GoogleFonts.inter(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.5,
+                  color: EditorialTheme.textSecondary,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                "Selecciona la dificultad de tu crucigrama",
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: EditorialTheme.textSecondary,
+                "Elige dificultad",
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: EditorialTheme.textPrimary,
                 ),
               ),
               const SizedBox(height: 14),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildQuickDifficultyCard(
-                      context,
-                      gameState,
-                      title: "Fácil",
-                      wordsCount: 6,
-                      difficultyFilter: "facil",
-                      reward: 50,
-                      color: EditorialTheme.success,
-                    ),
+              // Unified open 3-column ruled strip instead of 3 heavy boxes
+              Container(
+                decoration: BoxDecoration(
+                  color: EditorialTheme.surface,
+                  border: Border.all(color: EditorialTheme.borderLine, width: 0.9),
+                ),
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: _buildQuickDifficultyCard(
+                          context,
+                          gameState,
+                          title: "Fácil",
+                          wordsCount: 6,
+                          difficultyFilter: "facil",
+                          reward: 50,
+                          color: EditorialTheme.secondary,
+                        ),
+                      ),
+                      const VerticalDivider(width: 1, thickness: 0.8, color: EditorialTheme.borderLine),
+                      Expanded(
+                        child: _buildQuickDifficultyCard(
+                          context,
+                          gameState,
+                          title: "Medio",
+                          wordsCount: 9,
+                          difficultyFilter: "medio",
+                          reward: 100,
+                          color: EditorialTheme.primary,
+                        ),
+                      ),
+                      const VerticalDivider(width: 1, thickness: 0.8, color: EditorialTheme.borderLine),
+                      Expanded(
+                        child: _buildQuickDifficultyCard(
+                          context,
+                          gameState,
+                          title: "Experto",
+                          wordsCount: 13,
+                          difficultyFilter: "avanzado",
+                          reward: 200,
+                          color: EditorialTheme.error,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildQuickDifficultyCard(
-                      context,
-                      gameState,
-                      title: "Medio",
-                      wordsCount: 9,
-                      difficultyFilter: "medio",
-                      reward: 100,
-                      color: EditorialTheme.primary,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildQuickDifficultyCard(
-                      context,
-                      gameState,
-                      title: "Experto",
-                      wordsCount: 13,
-                      difficultyFilter: "avanzado",
-                      reward: 200,
-                      color: EditorialTheme.error,
-                    ),
-                  ),
-                ],
+                ),
               ),
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 26),
+              Container(height: 0.8, color: EditorialTheme.borderLine),
+              const SizedBox(height: 20),
 
               Text(
-                "EDICIONES POR TEMÁTICA",
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
-                  color: EditorialTheme.textPrimary,
+                "SUPLEMENTOS",
+                style: GoogleFonts.inter(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.5,
+                  color: EditorialTheme.textSecondary,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                "Explora áreas de conocimiento especializadas",
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: EditorialTheme.textSecondary,
+                "Ediciones por temática",
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: EditorialTheme.textPrimary,
                 ),
               ),
               const SizedBox(height: 16),
@@ -122,9 +143,9 @@ class CategorySelectScreen extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 1.35,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.38,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
                 ),
                 itemCount: categories.length,
                 itemBuilder: (ctx, i) {
@@ -162,14 +183,9 @@ class CategorySelectScreen extends StatelessWidget {
           MaterialPageRoute(builder: (ctx) => const CrosswordGameScreen()),
         );
       },
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-        decoration: BoxDecoration(
-          color: EditorialTheme.surface,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color, width: 1.5),
-        ),
+      borderRadius: BorderRadius.zero,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
         child: Column(
           children: [
             Text(
@@ -177,32 +193,25 @@ class CategorySelectScreen extends StatelessWidget {
               style: EditorialTheme.getEditorialFont(
                 fontId: gameState.activeFontId,
                 fontSize: 16,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w800,
                 color: color,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 3),
             Text(
-              "$wordsCount Palabras",
+              "$wordsCount palabras",
               style: GoogleFonts.inter(
-                fontSize: 11,
+                fontSize: 10.5,
                 color: EditorialTheme.textSecondary,
               ),
             ),
             const SizedBox(height: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                "+$reward 🪙",
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
+            Text(
+              "+$reward mon.",
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: EditorialTheme.accent,
               ),
             ),
           ],
@@ -217,14 +226,14 @@ class CategorySelectScreen extends StatelessWidget {
     String categoryName,
   ) {
     String imageName = "dossier_literatura.png";
-    if (categoryName.contains("Historia")) imageName = "dossier_historia.png";
-    if (categoryName.contains("Ciencia")) imageName = "dossier_ciencia.png";
+    if (categoryName.contains("Historia") || categoryName.contains("Derecho")) imageName = "dossier_historia.png";
+    if (categoryName.contains("Ciencia") || categoryName.contains("Astronomía") || categoryName.contains("Medicina")) imageName = "dossier_ciencia.png";
     if (categoryName.contains("Arte")) imageName = "dossier_arte.png";
     if (categoryName.contains("Geografía")) imageName = "dossier_geografia.png";
     if (categoryName.contains("Tecnología")) imageName = "dossier_tecnologia.png";
-    if (categoryName.contains("Filosofía")) imageName = "dossier_filosofia.png";
-    if (categoryName.contains("Entretenimiento")) imageName = "dossier_entretenimiento.png";
-    if (categoryName.contains("Literatura")) imageName = "dossier_literatura.png";
+    if (categoryName.contains("Filosofía") || categoryName.contains("Psicología")) imageName = "dossier_filosofia.png";
+    if (categoryName.contains("Entretenimiento") || categoryName.contains("Cine") || categoryName.contains("Teatro") || categoryName.contains("Música")) imageName = "dossier_entretenimiento.png";
+    if (categoryName.contains("Literatura") || categoryName.contains("Lenguaje") || categoryName.contains("Comunicación")) imageName = "dossier_literatura.png";
 
     return InkWell(
       onTap: () {
@@ -237,9 +246,9 @@ class CategorySelectScreen extends StatelessWidget {
           MaterialPageRoute(builder: (ctx) => const CrosswordGameScreen()),
         );
       },
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.zero,
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(14),
         decoration: EditorialTheme.newspaperCardDecoration,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,46 +256,33 @@ class CategorySelectScreen extends StatelessWidget {
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 46,
-                  height: 46,
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: EditorialTheme.primary.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: EditorialTheme.borderLine, width: 1.0),
-                  ),
+                SizedBox(
+                  width: 38,
+                  height: 38,
                   child: Image.asset(
                     "assets/images/$imageName",
                     fit: BoxFit.contain,
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios, size: 14, color: EditorialTheme.primary),
+                const Icon(
+                  Icons.arrow_forward_sharp,
+                  size: 14,
+                  color: EditorialTheme.textSecondary,
+                ),
               ],
             ),
-            const SizedBox(height: 6),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  categoryName,
-                  style: EditorialTheme.getEditorialFont(
-                    fontId: gameState.activeFontId,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  "Temática Especial",
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    color: EditorialTheme.textSecondary,
-                  ),
-                ),
-              ],
+            Text(
+              categoryName,
+              style: EditorialTheme.getEditorialFont(
+                fontId: gameState.activeFontId,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: EditorialTheme.inkDark,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

@@ -6,7 +6,6 @@ import '../../services/ad_manager.dart';
 import '../../services/game_state_provider.dart';
 import '../../services/iap_service.dart';
 import '../../theme/editorial_theme.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 class ShopScreen extends StatelessWidget {
   const ShopScreen({super.key});
@@ -534,36 +533,42 @@ class ShopScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: EditorialTheme.background,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
+        backgroundColor: EditorialTheme.background,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        leading: (ModalRoute.of(context)?.canPop ?? false)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_sharp, size: 20, color: EditorialTheme.inkDark),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
+        centerTitle: !(ModalRoute.of(context)?.canPop ?? false),
         title: Text(
-          "EL QUIOSCO EDITORIAL",
+          "Quiosco",
           style: GoogleFonts.playfairDisplay(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: EditorialTheme.inkDark,
           ),
         ),
         actions: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            margin: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            margin: const EdgeInsets.only(right: 16, top: 10, bottom: 10),
             decoration: BoxDecoration(
               color: EditorialTheme.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: EditorialTheme.accent, width: 1.5),
+              borderRadius: BorderRadius.zero,
+              border: Border.all(color: EditorialTheme.borderLine, width: 0.9),
             ),
             child: Row(
               children: [
-                const Icon(Icons.monetization_on, color: EditorialTheme.accent, size: 18),
-                const SizedBox(width: 6),
+                const Icon(Icons.monetization_on_outlined, color: EditorialTheme.accent, size: 15),
+                const SizedBox(width: 5),
                 Text(
                   "${gameState.coins}",
-                  style: GoogleFonts.playfairDisplay(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
                     color: EditorialTheme.textPrimary,
                   ),
                 ),
@@ -571,152 +576,101 @@ class ShopScreen extends StatelessWidget {
             ),
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(0.8),
+          child: Container(height: 0.8, color: EditorialTheme.borderLine),
+        ),
       ),
       body: SafeArea(
         child: ListView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(vertical: 12.0),
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
           children: [
-            // 1. Newspaper Supplement Masthead Banner
+            // 1. Open Broadsheet Supplement Lead
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: EditorialTheme.newspaperCardDecoration,
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "SUPLEMENTO ILUSTRADO",
-                          style: GoogleFonts.inter(
-                            fontSize: 9.5,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.4,
-                            color: EditorialTheme.accent,
-                          ),
-                        ),
-                        Text(
-                          "QUIOSCO & TALLER",
-                          style: GoogleFonts.inter(
-                            fontSize: 9.5,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.4,
-                            color: EditorialTheme.textSecondary,
-                          ),
-                        ),
-                        Text(
-                          "EDICIÓN ESPECIAL",
-                          style: GoogleFonts.inter(
-                            fontSize: 9.5,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.4,
-                            color: EditorialTheme.accent,
-                          ),
-                        ),
-                      ],
+              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "TALLER DE IMPRENTA",
+                    style: GoogleFonts.inter(
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.5,
+                      color: EditorialTheme.accent,
                     ),
-                    const SizedBox(height: 6),
-                    Container(height: 1.5, color: EditorialTheme.textPrimary),
-                    const SizedBox(height: 8),
-                    Text(
-                      "GACETA DE LA IMPRENTA",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.playfairDisplay(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.5,
-                        color: EditorialTheme.textPrimary,
-                      ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Gaceta del Quiosco",
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: EditorialTheme.textPrimary,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      "Personaliza tu experiencia con tintas clásicas, fuentes históricas y fondos de honor.",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
-                        fontSize: 11.5,
-                        color: EditorialTheme.textSecondary,
-                        height: 1.3,
-                      ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Personaliza el periódico con tintas clásicas, tipografías históricas y rangos de honor.",
+                    style: GoogleFonts.inter(
+                      fontSize: 12.5,
+                      color: EditorialTheme.textSecondary,
+                      height: 1.38,
                     ),
-                    const SizedBox(height: 8),
-                    Container(height: 1.5, color: EditorialTheme.textPrimary),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 14),
+                  Container(height: 0.8, color: EditorialTheme.borderLine),
+                ],
               ),
-            ).animate().fadeIn(duration: 300.ms),
+            ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
-            // 2. Patrocinador Editorial (Free Coins Banner)
+            // 2. Patrocinador Editorial (Quiet hairline card)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 18.0),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: EditorialTheme.surface,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: EditorialTheme.accent, width: 1.8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: EditorialTheme.accent.withValues(alpha: 0.12),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
+                decoration: EditorialTheme.newspaperCardDecoration,
                 child: Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: EditorialTheme.accent.withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.stars, color: EditorialTheme.accent, size: 28),
-                    ),
+                    const Icon(Icons.stars_sharp, color: EditorialTheme.accent, size: 22),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "PATROCINIO DIARIO",
-                            style: GoogleFonts.inter(
-                              fontSize: 9.5,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.1,
-                              color: EditorialTheme.accent,
-                            ),
-                          ),
-                          Text(
                             "+50 Monedas de la Imprenta",
                             style: GoogleFonts.playfairDisplay(
-                              fontSize: 14,
+                              fontSize: 15,
                               fontWeight: FontWeight.bold,
                               color: EditorialTheme.textPrimary,
                             ),
                           ),
                           Text(
-                            "Mira un breve patrocinio editorial",
-                            style: GoogleFonts.inter(fontSize: 10.5, color: EditorialTheme.textSecondary),
+                            "Patrocinio editorial gratuito",
+                            style: GoogleFonts.inter(fontSize: 11, color: EditorialTheme.textSecondary),
                           ),
                         ],
                       ),
                     ),
+                    const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: () => AdManager.showRewardedAdForCoins(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: EditorialTheme.primary,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                        backgroundColor: EditorialTheme.inkDark,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                        elevation: 0,
                       ),
                       child: Text(
-                        "Reclamar",
+                        "RECLAMAR",
                         style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.9,
                           color: Colors.white,
                         ),
                       ),
@@ -890,34 +844,36 @@ class ShopScreen extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: EditorialTheme.primary,
-                  borderRadius: BorderRadius.circular(3),
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: const BoxDecoration(
+                  color: EditorialTheme.inkDark,
+                  borderRadius: BorderRadius.zero,
                 ),
                 child: Text(
                   sectionNum,
                   style: GoogleFonts.inter(
                     fontSize: 8.5,
                     fontWeight: FontWeight.w800,
-                    letterSpacing: 1.1,
+                    letterSpacing: 1.2,
                     color: Colors.white,
                   ),
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  title,
-                  style: GoogleFonts.playfairDisplay(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.8,
-                    color: EditorialTheme.textPrimary,
-                  ),
-                ),
+                child: Container(height: 1, color: EditorialTheme.borderLine),
               ),
             ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            title,
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 16.5,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.6,
+              color: EditorialTheme.textPrimary,
+            ),
           ),
           const SizedBox(height: 2),
           Text(
@@ -945,22 +901,15 @@ class ShopScreen extends StatelessWidget {
     final accVal = item.data?['accent'] as int? ?? 0xFFD9A63A;
 
     return Container(
-      width: 250,
+      width: 248,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: EditorialTheme.surface,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
-          color: isEquipped ? EditorialTheme.accent : EditorialTheme.borderLine,
-          width: isEquipped ? 2.2 : 1.2,
+          color: isEquipped ? EditorialTheme.inkDark : EditorialTheme.borderLine,
+          width: isEquipped ? 1.8 : 1.1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: EditorialTheme.textPrimary.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -970,8 +919,8 @@ class ShopScreen extends StatelessWidget {
             height: 38,
             decoration: BoxDecoration(
               color: Color(bgVal),
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(color: EditorialTheme.borderLine),
+              borderRadius: BorderRadius.zero,
+              border: Border.all(color: EditorialTheme.inkDark, width: 0.9),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Row(
@@ -982,15 +931,29 @@ class ShopScreen extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 9,
                     fontWeight: FontWeight.w900,
-                    letterSpacing: 1.0,
+                    letterSpacing: 1.1,
                     color: Color(inkVal),
                   ),
                 ),
                 Row(
                   children: [
-                    Container(width: 10, height: 10, decoration: BoxDecoration(color: Color(inkVal), shape: BoxShape.circle)),
+                    Container(
+                      width: 11,
+                      height: 11,
+                      decoration: BoxDecoration(
+                        color: Color(inkVal),
+                        border: Border.all(color: EditorialTheme.borderLine, width: 0.5),
+                      ),
+                    ),
                     const SizedBox(width: 4),
-                    Container(width: 10, height: 10, decoration: BoxDecoration(color: Color(accVal), shape: BoxShape.circle)),
+                    Container(
+                      width: 11,
+                      height: 11,
+                      decoration: BoxDecoration(
+                        color: Color(accVal),
+                        border: Border.all(color: EditorialTheme.borderLine, width: 0.5),
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -1027,22 +990,22 @@ class ShopScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 8),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: EditorialTheme.accent.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(5),
-                border: Border.all(color: EditorialTheme.accent),
+                color: EditorialTheme.accent.withValues(alpha: 0.16),
+                borderRadius: BorderRadius.zero,
+                border: Border.all(color: EditorialTheme.accent, width: 1.1),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.check, size: 14, color: EditorialTheme.textPrimary),
+                  const Icon(Icons.check_sharp, size: 14, color: EditorialTheme.inkDark),
                   const SizedBox(width: 4),
                   Text(
                     "EN USO",
                     style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: EditorialTheme.textPrimary,
-                      letterSpacing: 0.8,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w800,
+                      color: EditorialTheme.inkDark,
+                      letterSpacing: 0.9,
                     ),
                   ),
                 ],
@@ -1054,15 +1017,16 @@ class ShopScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: EditorialTheme.primary,
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                elevation: 0,
               ),
               child: Text(
                 "USAR ESTILO",
                 style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w800,
                   color: Colors.white,
-                  letterSpacing: 0.8,
+                  letterSpacing: 0.9,
                 ),
               ),
             )
@@ -1085,14 +1049,15 @@ class ShopScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: EditorialTheme.accent,
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                elevation: 0,
               ),
               child: Text(
-                "${item.price} 🪙 ADQUIRIR",
+                "${item.price} MONEDAS · ADQUIRIR",
                 style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: EditorialTheme.textPrimary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  color: EditorialTheme.inkDark,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -1112,22 +1077,15 @@ class ShopScreen extends StatelessWidget {
     final isEquipped = gameState.activeFontId == item.id;
 
     return Container(
-      width: 250,
+      width: 248,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: EditorialTheme.surface,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
-          color: isEquipped ? EditorialTheme.accent : EditorialTheme.borderLine,
-          width: isEquipped ? 2.2 : 1.2,
+          color: isEquipped ? EditorialTheme.inkDark : EditorialTheme.borderLine,
+          width: isEquipped ? 1.8 : 1.1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: EditorialTheme.textPrimary.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1137,8 +1095,8 @@ class ShopScreen extends StatelessWidget {
             height: 46,
             decoration: BoxDecoration(
               color: EditorialTheme.background,
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(color: EditorialTheme.borderLine),
+              borderRadius: BorderRadius.zero,
+              border: Border.all(color: EditorialTheme.borderLine, width: 1),
             ),
             alignment: Alignment.center,
             child: Text(
@@ -1181,21 +1139,21 @@ class ShopScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 8),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: EditorialTheme.accent.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(5),
-                border: Border.all(color: EditorialTheme.accent),
+                color: EditorialTheme.accent.withValues(alpha: 0.16),
+                borderRadius: BorderRadius.zero,
+                border: Border.all(color: EditorialTheme.accent, width: 1.1),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.check, size: 14, color: EditorialTheme.textPrimary),
+                  const Icon(Icons.check_sharp, size: 14, color: EditorialTheme.inkDark),
                   const SizedBox(width: 4),
                   Text(
                     "TIPOGRAFÍA ACTIVA",
                     style: GoogleFonts.inter(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.bold,
-                      color: EditorialTheme.textPrimary,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: EditorialTheme.inkDark,
                       letterSpacing: 0.8,
                     ),
                   ),
@@ -1208,13 +1166,14 @@ class ShopScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: EditorialTheme.primary,
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                elevation: 0,
               ),
               child: Text(
                 "ACTIVAR FUENTE",
                 style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w800,
                   color: Colors.white,
                   letterSpacing: 0.8,
                 ),
@@ -1239,14 +1198,15 @@ class ShopScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: EditorialTheme.accent,
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                elevation: 0,
               ),
               child: Text(
-                "${item.price} 🪙 ADQUIRIR",
+                "${item.price} MONEDAS · ADQUIRIR",
                 style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: EditorialTheme.textPrimary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  color: EditorialTheme.inkDark,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -1274,12 +1234,14 @@ class ShopScreen extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(7),
+                width: 34,
+                height: 34,
                 decoration: BoxDecoration(
-                  color: EditorialTheme.primary.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
+                  color: EditorialTheme.background,
+                  borderRadius: BorderRadius.zero,
+                  border: Border.all(color: EditorialTheme.inkDark, width: 1.0),
                 ),
-                child: const Icon(Icons.menu_book, color: EditorialTheme.primary, size: 20),
+                child: const Icon(Icons.menu_book_outlined, color: EditorialTheme.primary, size: 18),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -1315,14 +1277,15 @@ class ShopScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 7),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: EditorialTheme.success.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(5),
+                color: EditorialTheme.success.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.zero,
+                border: Border.all(color: EditorialTheme.success, width: 1.0),
               ),
               child: Text(
                 "✓ DESBLOQUEADO",
                 style: GoogleFonts.inter(
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
                   color: EditorialTheme.success,
                   letterSpacing: 0.8,
                 ),
@@ -1346,13 +1309,14 @@ class ShopScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: EditorialTheme.primary,
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                elevation: 0,
               ),
               child: Text(
-                "${item.price} 🪙 DESBLOQUEAR",
+                "${item.price} MONEDAS · ABRIR",
                 style: GoogleFonts.inter(
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
                   color: Colors.white,
                   letterSpacing: 0.5,
                 ),
@@ -1373,22 +1337,15 @@ class ShopScreen extends StatelessWidget {
     final isEquipped = gameState.activeTitleId == item.id;
 
     return Container(
-      width: 250,
+      width: 248,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: EditorialTheme.surface,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
-          color: isEquipped ? EditorialTheme.accent : EditorialTheme.borderLine,
-          width: isEquipped ? 2.2 : 1.2,
+          color: isEquipped ? EditorialTheme.inkDark : EditorialTheme.borderLine,
+          width: isEquipped ? 1.8 : 1.1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: EditorialTheme.textPrimary.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1398,9 +1355,9 @@ class ShopScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: isEquipped
-                  ? EditorialTheme.accent.withValues(alpha: 0.2)
+                  ? EditorialTheme.accent.withValues(alpha: 0.16)
                   : EditorialTheme.background,
-              borderRadius: BorderRadius.circular(5),
+              borderRadius: BorderRadius.zero,
               border: Border.all(
                 color: isEquipped ? EditorialTheme.accent : EditorialTheme.borderLine,
               ),
@@ -1410,17 +1367,17 @@ class ShopScreen extends StatelessWidget {
               children: [
                 Icon(
                   isEquipped ? Icons.military_tech : Icons.workspace_premium_outlined,
-                  size: 16,
-                  color: isEquipped ? const Color(0xFFB45309) : EditorialTheme.primary,
+                  size: 15,
+                  color: isEquipped ? EditorialTheme.accent : EditorialTheme.primary,
                 ),
                 const SizedBox(width: 6),
                 Text(
                   "CREDENCIAL DE PRENSA",
                   style: GoogleFonts.inter(
-                    fontSize: 9.5,
+                    fontSize: 9,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 1.0,
-                    color: isEquipped ? const Color(0xFFB45309) : EditorialTheme.primary,
+                    color: isEquipped ? EditorialTheme.inkDark : EditorialTheme.primary,
                   ),
                 ),
               ],
@@ -1456,21 +1413,21 @@ class ShopScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 8),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: EditorialTheme.accent.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(5),
-                border: Border.all(color: EditorialTheme.accent),
+                color: EditorialTheme.accent.withValues(alpha: 0.16),
+                borderRadius: BorderRadius.zero,
+                border: Border.all(color: EditorialTheme.accent, width: 1.1),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.check, size: 14, color: EditorialTheme.textPrimary),
+                  const Icon(Icons.check_sharp, size: 14, color: EditorialTheme.inkDark),
                   const SizedBox(width: 4),
                   Text(
                     "TÍTULO ACTIVO",
                     style: GoogleFonts.inter(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.bold,
-                      color: EditorialTheme.textPrimary,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: EditorialTheme.inkDark,
                       letterSpacing: 0.8,
                     ),
                   ),
@@ -1483,13 +1440,14 @@ class ShopScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: EditorialTheme.primary,
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                elevation: 0,
               ),
               child: Text(
                 "EQUIPAR TÍTULO",
                 style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w800,
                   color: Colors.white,
                   letterSpacing: 0.8,
                 ),
@@ -1514,14 +1472,15 @@ class ShopScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: EditorialTheme.accent,
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                elevation: 0,
               ),
               child: Text(
-                "${item.price} 🪙 INVESTIRSE",
+                "${item.price} MONEDAS · INVESTIR",
                 style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: EditorialTheme.textPrimary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  color: EditorialTheme.inkDark,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -1549,12 +1508,14 @@ class ShopScreen extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                width: 34,
+                height: 34,
                 decoration: BoxDecoration(
-                  color: EditorialTheme.accent.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
+                  color: EditorialTheme.accent.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.zero,
+                  border: Border.all(color: EditorialTheme.accent, width: 1.0),
                 ),
-                child: const Icon(Icons.edit, color: EditorialTheme.accent, size: 20),
+                child: const Icon(Icons.edit_outlined, color: EditorialTheme.accent, size: 18),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -1590,14 +1551,15 @@ class ShopScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 7),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: EditorialTheme.success.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(5),
+                color: EditorialTheme.success.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.zero,
+                border: Border.all(color: EditorialTheme.success, width: 1.0),
               ),
               child: Text(
                 "✓ EN LA COLECCIÓN",
                 style: GoogleFonts.inter(
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
                   color: EditorialTheme.success,
                   letterSpacing: 0.8,
                 ),
@@ -1621,13 +1583,14 @@ class ShopScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: EditorialTheme.primary,
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                elevation: 0,
               ),
               child: Text(
-                "${item.price} 🪙 ADQUIRIR",
+                "${item.price} MONEDAS · ADQUIRIR",
                 style: GoogleFonts.inter(
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
                   color: Colors.white,
                   letterSpacing: 0.5,
                 ),
@@ -1648,22 +1611,15 @@ class ShopScreen extends StatelessWidget {
     final isSubscribed = gameState.hasNoAds && isVip;
 
     return Container(
-      width: 250,
+      width: 248,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: EditorialTheme.surface,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.zero,
         border: Border.all(
-          color: isVip ? EditorialTheme.accent : EditorialTheme.borderLine,
-          width: isVip ? 2.0 : 1.2,
+          color: isVip ? EditorialTheme.inkDark : EditorialTheme.borderLine,
+          width: isVip ? 1.8 : 1.1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: (isVip ? EditorialTheme.accent : EditorialTheme.textPrimary).withValues(alpha: 0.08),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1671,9 +1627,9 @@ class ShopScreen extends StatelessWidget {
           Row(
             children: [
               Icon(
-                isVip ? Icons.workspace_premium : Icons.monetization_on,
+                isVip ? Icons.workspace_premium : Icons.monetization_on_outlined,
                 color: isVip ? EditorialTheme.accent : EditorialTheme.primary,
-                size: 22,
+                size: 20,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -1719,15 +1675,16 @@ class ShopScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 8),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: EditorialTheme.accent.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(5),
+                color: EditorialTheme.accent.withValues(alpha: 0.16),
+                borderRadius: BorderRadius.zero,
+                border: Border.all(color: EditorialTheme.accent, width: 1.1),
               ),
               child: Text(
                 "✓ VIP ACTIVO",
                 style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: EditorialTheme.textPrimary,
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w800,
+                  color: EditorialTheme.inkDark,
                   letterSpacing: 0.8,
                 ),
               ),
@@ -1738,14 +1695,15 @@ class ShopScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: isVip ? EditorialTheme.accent : EditorialTheme.primary,
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                elevation: 0,
               ),
               child: Text(
                 item.price,
                 style: GoogleFonts.inter(
                   fontSize: 11.5,
-                  fontWeight: FontWeight.bold,
-                  color: isVip ? EditorialTheme.textPrimary : Colors.white,
+                  fontWeight: FontWeight.w800,
+                  color: isVip ? EditorialTheme.inkDark : Colors.white,
                   letterSpacing: 0.5,
                 ),
               ),

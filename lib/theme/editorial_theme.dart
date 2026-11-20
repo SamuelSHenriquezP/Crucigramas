@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class EditorialTheme {
-  // Color Palette - Periódico Premium
-  static const Color background = Color(0xFFF7F5EF); // Marfil cálido
-  static const Color surface = Color(0xFFFFFDF8);    // Blanco crema
-  static const Color textPrimary = Color(0xFF202124); // Negro carbón
-  static const Color textSecondary = Color(0xFF5F6368); // Gris medio
-  static const Color primary = Color(0xFF174A5B);     // Azul petróleo profundo
-  static const Color secondary = Color(0xFF2D6A4F);   // Verde editorial de honor
-  static const Color accent = Color(0xFFD9A63A);      // Mostaza elegante
-  static const Color success = Color(0xFF719579);     // Verde salvia
-  static const Color error = Color(0xFFC56D5A);       // Terracota
-  static const Color borderLine = Color(0xFFD8D3C9);  // Gris cálido
-  static const Color cellFocused = Color(0xFFF7E8BA); // Tint Mostaza cálido
-  static const Color wordFocused = Color(0xFFE3EDF0); // Tint Petróleo suave
-  static const Color inkDark = Color(0xFF2C302E);     // Tinta sepia oscura
+  // Color Palette - Crisp White Editorial Print
+  static const Color background = Color(0xFFFFFFFF);    // Blanco limpio editorial
+  static const Color surface = Color(0xFFFFFFFF);       // Blanco puro
+  static const Color textPrimary = Color(0xFF1A1A1A);   // Tinta carbón editorial
+  static const Color textSecondary = Color(0xFF686868); // Gris neutro editorial
+  static const Color primary = Color(0xFF1D3B49);       // Azul tinta sobrio
+  static const Color secondary = Color(0xFF285943);     // Verde editorial
+  static const Color accent = Color(0xFF9C6D24);        // Ocre dorado imprenta
+  static const Color success = Color(0xFF2E6B4E);       // Verde verificación
+  static const Color error = Color(0xFF9E342A);         // Rojo corrector
+  static const Color borderLine = Color(0xFFE0E0E0);    // Filete fino neutro
+  static const Color cellFocused = Color(0xFFF3E4B5);   // Celda activa
+  static const Color wordFocused = Color(0xFFE6EEF2);   // Palabra activa
+  static const Color inkDark = Color(0xFF1A1A1A);       // Tinta sólida
 
   static ThemeData get theme {
     return ThemeData(
@@ -32,47 +32,85 @@ class EditorialTheme {
         surface: surface,
         onSurface: textPrimary,
       ),
-      fontFamily: GoogleFonts.inter().fontFamily,
+      fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
       textTheme: TextTheme(
-        displayLarge: GoogleFonts.playfairDisplay(
-          fontSize: 32,
-          fontWeight: FontWeight.bold,
+        displayLarge: GoogleFonts.libreBaskerville(
+          fontSize: 30,
+          fontWeight: FontWeight.w700,
           color: textPrimary,
-          letterSpacing: -0.5,
+          letterSpacing: -0.4,
         ),
-        displayMedium: GoogleFonts.playfairDisplay(
-          fontSize: 26,
-          fontWeight: FontWeight.bold,
-          color: textPrimary,
-        ),
-        headlineMedium: GoogleFonts.playfairDisplay(
-          fontSize: 20,
+        displayMedium: GoogleFonts.libreBaskerville(
+          fontSize: 24,
           fontWeight: FontWeight.w700,
           color: textPrimary,
         ),
-        titleLarge: GoogleFonts.playfairDisplay(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: primary,
-        ),
-        bodyLarge: GoogleFonts.inter(
-          fontSize: 16,
+        headlineMedium: GoogleFonts.libreBaskerville(
+          fontSize: 19,
+          fontWeight: FontWeight.w700,
           color: textPrimary,
         ),
-        bodyMedium: GoogleFonts.inter(
-          fontSize: 14,
+        titleLarge: GoogleFonts.plusJakartaSans(
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+          color: primary,
+        ),
+        bodyLarge: GoogleFonts.plusJakartaSans(
+          fontSize: 15,
+          color: textPrimary,
+        ),
+        bodyMedium: GoogleFonts.plusJakartaSans(
+          fontSize: 13.5,
           color: textSecondary,
         ),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: background,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: primary),
-        titleTextStyle: GoogleFonts.playfairDisplay(
-          color: textPrimary,
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
+        iconTheme: const IconThemeData(color: inkDark),
+        titleTextStyle: GoogleFonts.libreBaskerville(
+          color: inkDark,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: inkDark,
+          foregroundColor: surface,
+          elevation: 0,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+          textStyle: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.9,
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: inkDark,
+          side: const BorderSide(color: borderLine, width: 1.0),
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          textStyle: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.7,
+          ),
+        ),
+      ),
+      dialogTheme: const DialogThemeData(
+        backgroundColor: surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero,
+          side: BorderSide(color: inkDark, width: 1.0),
         ),
       ),
     );
@@ -174,7 +212,7 @@ class EditorialTheme {
         );
       case 'font_playfair':
       default:
-        return GoogleFonts.playfairDisplay(
+        return GoogleFonts.libreBaskerville(
           fontSize: fontSize,
           fontWeight: fontWeight,
           color: textColor,
@@ -183,34 +221,46 @@ class EditorialTheme {
     }
   }
 
-  // Double ruled vintage newspaper border decoration
+  // Fine hairline editorial surface card (light printer rule instead of heavy dark boxes)
   static BoxDecoration get newspaperCardDecoration {
     return BoxDecoration(
       color: surface,
-      borderRadius: BorderRadius.circular(6.0),
-      border: Border.all(color: borderLine, width: 1.5),
-      boxShadow: [
-        BoxShadow(
-          color: textPrimary.withValues(alpha: 0.04),
-          blurRadius: 4,
-          offset: const Offset(0, 2),
-        ),
-      ],
+      borderRadius: BorderRadius.zero,
+      border: Border.all(color: borderLine, width: 0.9),
+    );
+  }
+
+  static BoxDecoration get subtleRuleBoxDecoration {
+    return BoxDecoration(
+      color: background,
+      borderRadius: BorderRadius.zero,
+      border: Border.all(color: borderLine, width: 0.8),
     );
   }
 
   static BoxDecoration get inkButtonDecoration {
     return BoxDecoration(
-      color: primary,
-      borderRadius: BorderRadius.circular(6.0),
-      border: Border.all(color: inkDark, width: 1.5),
-      boxShadow: [
-        BoxShadow(
-          color: primary.withValues(alpha: 0.2),
-          blurRadius: 3,
-          offset: const Offset(0, 2),
-        ),
-      ],
+      color: inkDark,
+      borderRadius: BorderRadius.zero,
+      border: Border.all(color: inkDark, width: 1.0),
+    );
+  }
+
+  /// Whisper-quiet printer's hairline double rule
+  static Widget doubleRule({
+    Color color = inkDark,
+    EdgeInsetsGeometry margin = EdgeInsets.zero,
+  }) {
+    return Padding(
+      padding: margin,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(height: 1.2, color: color),
+          const SizedBox(height: 2.5),
+          Container(height: 0.5, color: color.withValues(alpha: 0.55)),
+        ],
+      ),
     );
   }
 }
